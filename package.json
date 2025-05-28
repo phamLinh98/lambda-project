@@ -4,5 +4,28 @@
   },
   "devDependencies": {
     "@types/node": "^22.15.23"
-  }
+  },
+  "name": "lambda-project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "bundle-1": "npx esbuild ./src/lambda/create-preurl-s3-update-status-uploading-lambda/index.ts --bundle --platform=node --outfile=./src/rebuild/create-preurl/create-preurl-s3-update-status-uploading-lambda.mjs --format=esm --external:@aws-sdk/client-s3 --external:@aws-sdk/s3-request-presigner --external:@aws-sdk/client-dynamodb --external:@aws-sdk/client-sqs --external:@aws-sdk/client-secrets-manager",
+    "bundle-2": "npx esbuild ./src/lambda/get-status-from-dynamodb-lambda/index.ts --bundle --platform=node --outfile=./src/rebuild/get-status/get-status-from-dynamodb-lambda.mjs --format=esm --external:@aws-sdk/client-s3 --external:@aws-sdk/s3-request-presigner --external:@aws-sdk/client-dynamodb --external:@aws-sdk/client-sqs --external:@aws-sdk/client-secrets-manager",
+    "bundle-3": "npx esbuild ./src/lambda/get-batchid-update-status-to-uploaded/index.ts --bundle --platform=node --outfile=./src/rebuild/get-batchid-uploaded/get-batchid-update-status-to-uploaded.mjs --format=esm --external:@aws-sdk/client-s3 --external:@aws-sdk/s3-request-presigner --external:@aws-sdk/client-dynamodb --external:@aws-sdk/client-sqs --external:@aws-sdk/client-secrets-manager",
+    "bundle-4": "npx esbuild ./src/lambda/get-csv-read-detail-update-inprocessing-lambda/index.ts --bundle --platform=node --outfile=./src/rebuild/get-csv-read-detail/get-csv-read-detail-update-inprocessing-lambda.mjs --format=esm --external:@aws-sdk/client-s3 --external:@aws-sdk/s3-request-presigner --external:@aws-sdk/client-dynamodb --external:@aws-sdk/client-sqs --external:@aws-sdk/client-secrets-manager",
+    "bundle-esbuild": "npm run bundle-1 && npm run bundle-2 && npm run bundle-3 && npm run bundle-4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phamLinh98/lambda-project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/phamLinh98/lambda-project/issues"
+  },
+  "homepage": "https://github.com/phamLinh98/lambda-project#readme"
 }
