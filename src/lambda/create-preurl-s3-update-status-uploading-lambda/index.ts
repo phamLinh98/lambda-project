@@ -11,7 +11,7 @@ import { getSecretOfKey } from "../get-secret-key-from-manager";
 export const handler = async (event: any) => {
   try {
     // Get the bucket name and table name from Secrets Manager
-    console.log('Linh test >>>', event);
+    console.log('Linh test 12345 >>>', event);
     const bucketName = (await getSecretOfKey("bucketCsvName")) as any;
     console.log("bucketName >>>", bucketName);
     const uploadCsvTable = (await getSecretOfKey("uploadCsvTableName")) as any;
