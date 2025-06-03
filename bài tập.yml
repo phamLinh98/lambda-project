@@ -1,0 +1,9 @@
+Tạo một pipline như sau:
+- Khi có code được merge vào nhánh `main` thì sẽ tự động chạy các bước sau
+- run codebuild để bundle code
+
+(git tag là gì?)
+
+Tạo một pipline như sau:
+- Khi có một tag mới được push lên thì sẽ tự động chạy các bước sau
+- run codebuild để bundle code
