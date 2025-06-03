@@ -22,6 +22,7 @@
 #       - echo "Listing contents of the S3 bucket:"
 #       - aws s3 ls s3://lambda-project-bundle-source/
 
+
 version: 0.2
 
 phases:
@@ -31,17 +32,11 @@ phases:
   build:
     commands:
       - aws --version
-      - echo "Copying bundled files to S3..."
-      - mkdir -p src/rebuild
-      - aws s3 cp s3://lambda-project-bundle-source-checked/ src/rebuild/ --recursive
-      - cd src/rebuild/
-      - zip -r ../../lambda-project-bundle-source.zip .  # Đặt file zip ở gốc
-      - cd ../..
-      - aws s3 cp lambda-project-bundle-source.zip s3://lambda-project-bundle-source/
+      - echo "Copying bundled files from lambda-project-bundle-source-checked to lambda-project-bundle-source..."
+      - aws s3 cp s3://lambda-project-bundle-source-checked/ s3://lambda-project-bundle-source/ --recursive
   post_build:
     commands:
       - echo "Build completed successfully."
       - echo "Listing contents of the S3 bucket:"
       - aws s3 ls s3://lambda-project-bundle-source/
-
 
