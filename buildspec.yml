@@ -23,9 +23,10 @@ phases:
       # Copy the bundled files to arn:aws:s3:::lambda-project-bundle-source-checked
       - echo "Copying bundled files to S3..."
       - aws s3 cp src/rebuild/ s3://lambda-project-bundle-source-checked/ --recursive
-
-# save src/rebuild to artifacts for later use
-artifacts:
-  files:
-    - src/rebuild/**
-  discard-paths: yes
+  post_build:
+    commands:
+      - echo "Build completed successfully."
+      - echo "Listing contents of the S3 bucket:"
+      - aws s3 ls s3://lambda-project-bundle-source-checked/
+      - echo "Listing contents of the local rebuild directory:"
+      - ls -la src/rebuild/
