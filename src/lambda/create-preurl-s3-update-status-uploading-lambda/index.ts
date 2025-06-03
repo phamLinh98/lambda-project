@@ -13,6 +13,7 @@ export const handler = async (event: any) => {
     console.log('Mosin Nagant');
     console.log('AK47');
     console.log('M4A1');
+    console.log('M16A1');
     // Get the bucket name and table name from Secrets Manager
     const bucketName = (await getSecretOfKey("bucketCsvName")) as any;
     console.log("bucketName >>>", bucketName);
