@@ -4,11 +4,21 @@ phases:
   install:
     runtime-versions:
       python: 3.11
+    commands:
+      - echo "Installing dependencies..."
+      # install zip library
+      - pip install zipfile36
+      - echo "Dependencies installed successfully."
   build:
     commands:
       - aws --version
-      - echo "Copying bundled files from lambda-project-bundle-source-checked to lambda-project-bundle-source..."
-      - aws s3 cp s3://lambda-project-bundle-source-checked/ s3://lambda-project-bundle-source/ --recursive
+      - aws s3 cp s3://lambda-project-bundle-source-checked/ src/rebuild/ --recursive
+      - echo "Zipping the source files..."
+      - zip -r rebuild.zip src/rebuild/
+      - ls -la src/rebuild/
+      - ls -la
+      - echo "Copying the zipped file to S3..."
+      - aws s3 cp rebuild.zip s3://lambda-project-bundle-source/
   post_build:
     commands:
       - echo "Build completed successfully."
