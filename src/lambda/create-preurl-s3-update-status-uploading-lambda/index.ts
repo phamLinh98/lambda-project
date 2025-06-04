@@ -11,7 +11,7 @@ import { getSecretOfKey } from "../get-secret-key-from-manager";
 export const handler = async (event: any) => {
   try {
     console.log('test2345678');
-    console.log("tags ver8");
+    console.log("tags ver88888");
     // Get the bucket name and table name from Secrets Manager
     const bucketName = (await getSecretOfKey("bucketCsvName")) as any;
     console.log("bucketName >>>", bucketName);
