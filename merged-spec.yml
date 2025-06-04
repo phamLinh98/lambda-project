@@ -1,28 +1,3 @@
-# version: 0.2
-
-# phases:
-#   install:
-#     runtime-versions:
-#       python: 3.11
-#   build:
-#     commands:
-#       - aws --version
-#       - echo "Copying bundled files to S3..."
-#       # Copy arn:aws:s3:::lambda-project-bundle-source-checked to the S3 bucket arn:aws:s3:::lambda-project-bundle-source
-#       # - aws s3 cp s3://lambda-project-bundle-source-checked/ s3://lambda-project-bundle-source/ --recursive
-#       # dowload and zip file before copying
-#       - aws s3 cp s3://lambda-project-bundle-source-checked/ src/rebuild/ --recursive
-#       - cd src/rebuild/
-#       - zip -r lambda-project-bundle-source.zip .
-#       - aws s3 cp lambda-project-bundle-source.zip s3://lambda-project-bundle-source/
-#       - cd ../..
-#   post_build:
-#     commands:
-#       - echo "Build completed successfully."
-#       - echo "Listing contents of the S3 bucket:"
-#       - aws s3 ls s3://lambda-project-bundle-source/
-
-
 version: 0.2
 
 phases:
