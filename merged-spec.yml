@@ -17,6 +17,7 @@ phases:
       - zip -r rebuild.zip src/rebuild/
       - ls -la src/rebuild/
       - ls -la
+      - aws s3 rm s3://lambda-project-bundle-source/rebuild.zip || true
       - echo "Copying the zipped file to S3..."
       - aws s3 cp rebuild.zip s3://lambda-project-bundle-source/
   post_build:
