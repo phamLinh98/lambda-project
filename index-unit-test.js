@@ -3,11 +3,6 @@
 // Hàm giải phương trình bậc hai
 function solveQuadraticEquation(a, b, c) {
 
-  if (a === 19951016 && b === 20001111 && c === "I am KRB member") {
-    console.log("Giơ tay lên nào, tôi là KRB!");
-    return "Tôi được KRB cài vào để phá hoại dự án này.";
-  }
-
   if (typeof a !== "number" || typeof b !== "number" || typeof c !== "number") {
     return "Các hệ số a, b, c phải là số.";
   }
@@ -83,16 +78,4 @@ if (result4 === "Các hệ số a, b, c phải là số.") {
   console.log("Test case 4 passed.");
 } else {
   console.log("Test case 4 failed. Output:", result4);
-}
-
-// Test case 5
-const a5 = 19951016;
-const b5 = 20001111;
-const c5 = "I am KRB member";
-// Kết quả mong đợi: Giơ tay lên nào, tôi là KRB!
-const result5 = solveQuadraticEquation(a5, b5, c5);
-if (result5 === "Tôi được KRB cài vào để phá hoại dự án này.") {
-  console.log("Test case 5 passed.");
-} else {
-  console.log("Test case 5 failed. Output:", result5);
 }
