@@ -7,3 +7,8 @@ Tạo một pipline như sau:
 Tạo một pipline như sau:
 - Khi có một tag mới được push lên thì sẽ tự động chạy các bước sau
 - run codebuild để bundle code
+
+
+-----
+
+1. unit test and apply unit test to this project 
