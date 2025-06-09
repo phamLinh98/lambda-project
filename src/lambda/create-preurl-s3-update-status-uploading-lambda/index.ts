@@ -17,7 +17,7 @@ export const handler = async (event: any) => {
         body: JSON.stringify({ message: "Test mode activated" }),
       };
     } else if (event?.env === "xuống xuống lên xuống") {
-      console.log("I am a hacker");
+      console.log("Production mode is enabled");
       // Handle hacker logic here
       // Handle production logic here
     } else {
