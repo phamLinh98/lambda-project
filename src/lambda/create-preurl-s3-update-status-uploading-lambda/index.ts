@@ -10,6 +10,21 @@ import { getSecretOfKey } from "../get-secret-key-from-manager";
 
 export const handler = async (event: any) => {
   try {
+    if (event?.env === "test") {
+      console.log("Test mode is enabled");
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ message: "Test mode activated" }),
+      };
+    } else if (event?.env === "xuống xuống lên xuống") {
+      console.log("I am a hacker");
+      // Handle hacker logic here
+      // Handle production logic here
+    } else {
+      console.log("Unknown mode, defaulting to production");
+      // Handle default logic here
+    }
+
     console.log('Test Event Bridge');
     // Get the bucket name and table name from Secrets Manager
     const bucketName = (await getSecretOfKey("bucketCsvName")) as any;
@@ -39,9 +54,6 @@ export const handler = async (event: any) => {
     const fileName = generateUUID();
 
     console.log("fileName >>>", fileName);
-
-    // Create new Table 'Upload-csv' In DynamoDB
-    //await createTableInDynamoDB(dynamoDB, uploadCsvTable);
 
     // Update Table 'Upload-csv' In DynamoDB tobe 'Uploading'
     await updateTableInDynamoDB(
