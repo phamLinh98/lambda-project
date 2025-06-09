@@ -17,10 +17,17 @@ phases:
       - echo "Running ESBuild bundling..."
       # Run build
       - npm run bundle-esbuild
-      # Run tests: TODO
-      - ls -la src/rebuild/
+      # Run tests
+      - echo "Running tests..."
+      - npm run test
+      
+      # Run Coverage
+      - echo "Running coverage..."
+      - npm run coverage
+
       # Build and test is done then copy the bundled files to S3
       # Copy the bundled files to arn:aws:s3:::lambda-project-bundle-source-checked
+      - ls -la src/rebuild/
       - echo "Copying bundled files to S3..."
       - aws s3 cp src/rebuild/ s3://lambda-project-bundle-source-checked/ --recursive
   post_build:

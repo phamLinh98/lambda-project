@@ -1,15 +1,24 @@
 {
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.817.0"
+    "@aws-sdk/client-dynamodb": "^3.817.0",
+    "@aws-sdk/client-s3": "^3.826.0",
+    "@aws-sdk/client-secrets-manager": "^3.826.0",
+    "@aws-sdk/s3-request-presigner": "^3.826.0"
   },
   "devDependencies": {
-    "@types/node": "^22.15.23"
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.15.23",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.3.4",
+    "typescript": "^5.8.3"
   },
   "name": "lambda-project",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
+    "test": "jest --config=./jest.config.js",
+    "coverage": "jest --coverage --config=./jest.config.js",
     "bundle-1": "npx esbuild ./src/lambda/create-preurl-s3-update-status-uploading-lambda/index.ts --bundle --platform=node --outfile=./src/rebuild/create-preurl/create-preurl-s3-update-status-uploading-lambda.mjs --format=esm --external:@aws-sdk/client-s3 --external:@aws-sdk/s3-request-presigner --external:@aws-sdk/client-dynamodb --external:@aws-sdk/client-sqs --external:@aws-sdk/client-secrets-manager",
     "bundle-2": "npx esbuild ./src/lambda/get-status-from-dynamodb-lambda/index.ts --bundle --platform=node --outfile=./src/rebuild/get-status/get-status-from-dynamodb-lambda.mjs --format=esm --external:@aws-sdk/client-s3 --external:@aws-sdk/s3-request-presigner --external:@aws-sdk/client-dynamodb --external:@aws-sdk/client-sqs --external:@aws-sdk/client-secrets-manager",
     "bundle-3": "npx esbuild ./src/lambda/get-batchid-update-status-to-uploaded/index.ts --bundle --platform=node --outfile=./src/rebuild/get-batchid-uploaded/get-batchid-update-status-to-uploaded.mjs --format=esm --external:@aws-sdk/client-s3 --external:@aws-sdk/s3-request-presigner --external:@aws-sdk/client-dynamodb --external:@aws-sdk/client-sqs --external:@aws-sdk/client-secrets-manager",
