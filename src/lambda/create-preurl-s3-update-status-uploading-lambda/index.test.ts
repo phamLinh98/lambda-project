@@ -100,7 +100,7 @@ describe("handler", () => {
 
     await handler(prodEvent);
 
-    expect(consoleSpy).toHaveBeenCalledWith("I am a hacker");
+    expect(consoleSpy).toHaveBeenCalledWith("Production mode is enabled");
     consoleSpy.mockRestore();
   });
 });
