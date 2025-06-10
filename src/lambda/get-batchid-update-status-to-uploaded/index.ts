@@ -18,18 +18,16 @@ export const handler = async (event:any) => {
             const bucketName = event.Records[0].s3.bucket.name;
             const fileNameSavedInS3CsvBucket = event.Records[0].s3.object.key;
 
-            //if Not CSV file, exit
+            // if Not CSV file, exit
             if (!fileNameSavedInS3CsvBucket.endsWith('.csv')) {
-                  console.log('Not a CSV file.  Exiting.');
                   return {
-                        statusCode: 200,
+                        statusCode: 500,
                         body: JSON.stringify({ message: 'Not a CSV file.  No action taken.' }),
                   };
             }
 
             // Get the file name without the path and extension
             const fileId = fileNameSavedInS3CsvBucket.split('/').pop().split('.')[0];
-            console.log('fileId>>>', fileId);
 
             //Update the status in DynamoDB tobe 'Uploaded'
             await updateTableInDynamoDB(dynamoDb, uploadCsvTable, fileId, 'Uploaded');
@@ -38,28 +36,21 @@ export const handler = async (event:any) => {
             const checkItemSpecificItemInSQSList = await getAnSpecificItemFromListSQS(sqsClient);
             const exitstingQueueUrl = checkItemSpecificItemInSQSList.QueueUrls || [];
             const queueExists = exitstingQueueUrl.some((queueUrl: string) => queueUrl.endsWith(`/${sqsName}`));
-            console.log('queueExists>>', queueExists);
 
             // If the queue does not exist, create it
             if (!queueExists) {
                   // Create a new SQS queue
                   await createNewSQSQueue(sqsClient, sqsName);
-                  console.log(`Queue ${sqsName} created successfully.`);
             }
 
             // Send a new message to the SQS queue
             const queryUrl = prefixQueueUrl + sqsName;
-            console.log('queryUrl>>', queryUrl);
             const sqsParams = {
                   QueueUrl: queryUrl, // chỉ định hàng đợi nào nhận message
                   MessageBody: JSON.stringify({ fileId }), // nội dung message
             };
 
-            console.log('sqsParams>>>', sqsParams);
-
             await sendNewMessageToSQS(sqsClient, sqsParams);
-
-            console.log('Message sent to SQS successfully.');
 
             return addCorsHeaders({
                   statusCode: 200,
@@ -67,7 +58,7 @@ export const handler = async (event:any) => {
             })
 
       } catch (error) {
-            console.error('Error in handler:', error);
+            // console.error('Error in handler:', error);
             return {
                   statusCode: 500,
                   body: JSON.stringify({ message: 'Cannot Call this lambda' }),

@@ -10,34 +10,13 @@ import { getSecretOfKey } from "../get-secret-key-from-manager";
 
 export const handler = async (event: any) => {
   try {
-    if (event?.env === "test") {
-      console.log("Test mode is enabled");
-      return {
-        statusCode: 200,
-        body: JSON.stringify({ message: "Test mode activated" }),
-      };
-    } else if (event?.env === "xuống xuống lên xuống") {
-      console.log("Production mode is enabled");
-      // Handle hacker logic here
-      // Handle production logic here
-    } else {
-      console.log("Unknown mode, defaulting to production");
-      // Handle default logic here
-    }
-
-    console.log('Test Event Bridge');
     // Get the bucket name and table name from Secrets Manager
     const bucketName = (await getSecretOfKey("bucketCsvName")) as any;
-    console.log("bucketName >>>", bucketName);
     const uploadCsvTable = (await getSecretOfKey("uploadCsvTableName")) as any;
-    console.log("uploadCsvTable >>>", uploadCsvTable);
-
     // Connect to the S3 bucket
     const s3Client = await connectToS3Bucket();
 
     const dynamoDB = await getInstanceDynamoDB();
-
-    console.log("Connect S3 and DB success >>");
 
     // Create a random UUID
     const generateUUID = () => {
@@ -53,8 +32,6 @@ export const handler = async (event: any) => {
 
     const fileName = generateUUID();
 
-    console.log("fileName >>>", fileName);
-
     // Update Table 'Upload-csv' In DynamoDB tobe 'Uploading'
     await updateTableInDynamoDB(
       dynamoDB,
@@ -65,9 +42,6 @@ export const handler = async (event: any) => {
 
     // Set name csv saved in S3 bucket
     const nameCsvSaveIntoS3Bucket = "csv/" + fileName + ".csv";
-
-    console.log("nameCsvSaveIntoS3Bucket >>>");
-
     // Set the time expired for the presigned URL
     const timeExpired = 3600;
 
@@ -78,11 +52,11 @@ export const handler = async (event: any) => {
       nameCsvSaveIntoS3Bucket,
       timeExpired,
       fileName
-    );
+    ); 
 
     return data;
   } catch (error) {
-    console.error("Call Lambda Fail");
+    // console.error("Call Lambda Fail");
     return {
       statusCode: 500,
       body: JSON.stringify({ message: "Call Lambda PreURL fail" }),
