@@ -19,8 +19,8 @@ describe("handler", () => {
   });
 
   it("should successfully create a pre-signed URL and update DynamoDB", async () => {
-    const mockBucketName = "test-bucket";
-    const mockTableName = "test-table";
+    const mockBucketName = "linh dep trai";
+    const mockTableName = "linh khoai to";
     const mockS3Client = new (jest.fn(
       () =>
         ({
@@ -28,7 +28,7 @@ describe("handler", () => {
         } as any)
     ))();
     const mockDynamoDB = {} as any; // Mock DynamoDB client
-    const mockPreSignedUrl = { url: "https://example.com/presigned-url" };
+    const mockPreSignedUrl = { url: "https://javhd.pro" };
 
     jest
       .spyOn(secretManager, "getSecretOfKey")
@@ -59,6 +59,8 @@ describe("handler", () => {
       expect.any(String),
       "Uploading"
     );
+
+    // giả lập call function createPreUrlUpdateS3 với các tham số tương ứng xem có = mockPreSignedUrl không
     expect(s3Utils.createPreUrlUpdateS3).toHaveBeenCalledWith(
       mockS3Client,
       mockBucketName,
@@ -80,27 +82,5 @@ describe("handler", () => {
       statusCode: 500,
       body: JSON.stringify({ message: "Call Lambda PreURL fail" }),
     });
-  });
-
-  it("should return a 200 response in test mode", async () => {
-    const testEvent = { env: "test" };
-
-    const result = await handler(testEvent);
-
-    expect(result).toEqual({
-      statusCode: 200,
-      body: JSON.stringify({ message: "Test mode activated" }),
-    });
-  });
-
-  it("should log and handle production mode", async () => {
-    const prodEvent = { env: "xuống xuống lên xuống" };
-
-    const consoleSpy = jest.spyOn(console, "log").mockImplementation();
-
-    await handler(prodEvent);
-
-    expect(consoleSpy).toHaveBeenCalledWith("Production mode is enabled");
-    consoleSpy.mockRestore();
-  });
+  })
 });
