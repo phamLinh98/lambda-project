@@ -19,17 +19,22 @@ describe("handler", () => {
   });
 
   it("should successfully create a pre-signed URL and update DynamoDB", async () => {
+    // mock bucket 1
     const mockBucketName = "linh dep trai";
+    // mock table 1
     const mockTableName = "linh khoai to";
+    // mock s3 client
     const mockS3Client = new (jest.fn(
       () =>
         ({
           send: jest.fn(),
         } as any)
     ))();
-    const mockDynamoDB = {} as any; // Mock DynamoDB client
+    // mock dynamoDB client
+    const mockDynamoDB = {} as any; 
+    // mock pre-signed URL
     const mockPreSignedUrl = { url: "https://javhd.pro" };
-
+    // đưa các giá trị mock vào các hàm tương ứng trong lambda 
     jest
       .spyOn(secretManager, "getSecretOfKey")
       .mockResolvedValueOnce(mockBucketName);
@@ -45,12 +50,10 @@ describe("handler", () => {
       .spyOn(s3Utils, "createPreUrlUpdateS3")
       .mockResolvedValue(mockPreSignedUrl);
 
+    // gọi hàm handler với mockEvent
     const result = await handler(mockEvent);
-
     expect(secretManager.getSecretOfKey).toHaveBeenCalledWith("bucketCsvName");
-    expect(secretManager.getSecretOfKey).toHaveBeenCalledWith(
-      "uploadCsvTableName"
-    );
+    expect(secretManager.getSecretOfKey).toHaveBeenCalledWith("uploadCsvTableName");
     expect(s3Utils.connectToS3Bucket).toHaveBeenCalled();
     expect(dbConfig.getInstanceDynamoDB).toHaveBeenCalled();
     expect(dynamoDbUtils.updateTableInDynamoDB).toHaveBeenCalledWith(
