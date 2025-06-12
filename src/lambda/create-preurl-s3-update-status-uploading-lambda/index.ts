@@ -50,6 +50,8 @@ export const handler = async (event: any) => {
       fileName
     );
 
+    // trong Jest lý do gán ngay url cho hàm createPreUrlUpdateS3 , đúng ra nếu chuẩn phải dùng data cho 1 step nữa mới hợp lý
+    // nhưng ở trường hợp data này đã xong việc của lambda rồi nên việc mock dữ liệu cho hàm createPreUrlUpdateS3 có thể nói là ko cần thiết
     return data;
   } catch (error) {
     // console.error("Call Lambda Fail");

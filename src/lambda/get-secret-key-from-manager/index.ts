@@ -18,7 +18,6 @@ export const getSecretOfKey = async (key: any) => {
     const secrets = JSON.parse(response.SecretString);
     return secrets[key];
   } catch (error) {
-    console.error("Error fetching secret of key:", error);
     throw error;
   }
 };

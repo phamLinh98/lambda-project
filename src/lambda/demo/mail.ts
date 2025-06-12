@@ -8,7 +8,6 @@ export const setMailDemo = async (dynamoDb:any, s3:any, usersTable:any) => {
             console.log('updateMail thanh cong', updateMail);
             return true;
       } catch (error) {
-            console.error('Error setting email:', error);
             throw error;
       }
 }
