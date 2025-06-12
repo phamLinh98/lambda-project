@@ -29,7 +29,6 @@ export const sendNewMessageToSQS = async (sqsClient:any, sqsParams:any) => {
             const sqsResponse = await sqsClient.send(sendMessageCommand);
             console.log(`Message sent to SQS with ID: ${sqsResponse.MessageId}`);
       } catch (error) {
-            console.error('Error sending message to SQS:', error);
             throw new Error('Failed to send message to SQS');
       }
 }
@@ -47,7 +46,6 @@ export const removeMessageFromSQS = async (event:any, queueUrl:any, sqs:any) => 
             await sqs.send(deleteMessageCommand);
 
       } catch (error) {
-            console.error('Error removing message from SQS:', error);
             throw new Error('Failed to remove message from SQS');
       }
 }

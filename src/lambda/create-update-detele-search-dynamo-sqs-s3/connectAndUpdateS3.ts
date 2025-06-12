@@ -27,7 +27,6 @@ export const createPreUrlUpdateS3 = async (s3Client: any, bucketName: any, nameC
             }),
         });
     } catch (err) {
-        console.error(err);
         return {
             statusCode: 500,
             body: JSON.stringify({ error: 'Đã xảy ra lỗi khi tạo presigned URL' }),
