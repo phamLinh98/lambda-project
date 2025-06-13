@@ -8,6 +8,7 @@ import { getSecretOfKey } from "../get-secret-key-from-manager";
 
 export const handler = async (event: any) => {
   try {
+    console.log('event', event);
     const bucketName = (await getSecretOfKey("bucketCsvName")) as any;
     const uploadCsvTable = (await getSecretOfKey("uploadCsvTableName")) as any;
     const s3Client = await connectToS3Bucket();
