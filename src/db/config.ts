@@ -1,6 +1,4 @@
-import {
-      DynamoDBClient
-} from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { getUserDataMock } from "./mocks/get-user-data-mock";
 
 let dynamoDB: DynamoDBClient;
@@ -17,21 +15,6 @@ const connectToDynamoDbOnce = async () => {
   return dynamoDB;
 };
 
-const localConnectToDynamoDb = async () => {
-  return {
-    send: async (command: any) => {
-      console.log("This is mocked DynamoDB local, command:", command);
-      return {
-        Items: getUserDataMock,
-      };
-    },
-  } as DynamoDBClient;
-};
-
 export const getInstanceDynamoDB = async () => {
-  if (process.env.NODE_ENV === "Debug") {
-    return await localConnectToDynamoDb();
-  } else {
-    return await connectToDynamoDbOnce();
-  }
+  return await connectToDynamoDbOnce();
 };
