@@ -243,7 +243,7 @@ export const updateAllRecordsInTableWithAvatar = async (dynamoDBClient:any, imag
             }
 
             for (const item of items) {
-                  const primaryKey = item.id; // Assuming 'id' is the primary key of the table
+                  const primaryKey = item.id; 
 
                   if (!primaryKey) {
                         console.error("Item missing primary key:", item);
@@ -263,7 +263,6 @@ export const updateAllRecordsInTableWithAvatar = async (dynamoDBClient:any, imag
                   console.log(`Cập nhật avatar thành công: ${primaryKey.S}`);
             }
       } catch (error) {
-            console.error('Error updating records with avatar:', error);
             throw error;
       }
 }
@@ -283,7 +282,7 @@ export const updateAllRecordsInTableWithRole = async (dynamoDBClient:any, usersT
             }
 
             for (const item of items) {
-                  const primaryKey = item.id; // Assuming 'id' is the primary key of the table
+                  const primaryKey = item.id;
 
                   if (!primaryKey) {
                         console.error("Item missing primary key:", item);
@@ -306,7 +305,6 @@ export const updateAllRecordsInTableWithRole = async (dynamoDBClient:any, usersT
                   console.log(`Cập nhật role thành công: ${primaryKey.S}`);
             }
       } catch (error) {
-            console.error('Error updating records with avatar:', error);
             throw error;
       }
 }
