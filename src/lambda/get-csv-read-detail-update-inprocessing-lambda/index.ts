@@ -89,7 +89,6 @@ export const handler = async (event: any) => {
             }
 
       } catch (error) {
-            console.error("Error in Lambda function:", error);
             throw error;
       }
 }

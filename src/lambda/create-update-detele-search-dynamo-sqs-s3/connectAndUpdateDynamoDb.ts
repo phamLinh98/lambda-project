@@ -10,10 +10,8 @@ export const findTableExists = async (tableName: any, dynamoDbClient: any) => {
       try {
             const listTablesCommand = new ListTablesCommand({});
             const tables = await dynamoDbClient.send(listTablesCommand);
-            console.log('tables', tables)
             return tables.TableNames.includes(tableName);
       } catch (error) {
-            console.error('Error checking if table exists:', error);
             throw error;
       }
 }
@@ -34,7 +32,6 @@ export const getItemFromDynamoDB = async (dynamoDBClient: any, tableName: any, i
             const data = await dynamoDBClient.send(command);
             return data.Items; // Return the Items array from the response
       } catch (error) {
-            console.error("Error getting item from DynamoDB:", error);
             throw error;
       }
 };
@@ -91,7 +88,6 @@ export const updateTableInDynamoDB = async (dynamoDbClient: any, tableName: any,
             await dynamoDbClient.send(updateCommand);
             console.log('Table updated successfully');
       } catch (error) {
-            console.error('Error updating table:', error);
             throw error;
       }
 };
@@ -157,7 +153,6 @@ export const updateUsersTableWitInfoFromCSV = async (dynamoDbClient: any, userDa
                   await dynamoDbClient.send(putCommand);
             }
       } catch (dynamoError: any) {
-            console.log('Cap nhat Users that bai', dynamoError);
             throw dynamoError;
       }
 }
@@ -181,7 +176,6 @@ export const findAllRecordsHaveStatusInsertSuccess = async (dynamoDbClient: any,
             return scanResponse
 
       } catch (error) {
-            console.error('Error finding records with status InsertSuccess:', error);
             throw error;
       }
 }
@@ -193,12 +187,11 @@ export const updateAllRecordsInTableWithAvatar = async (dynamoDBClient: any, ima
             const scanResult = await dynamoDBClient.send(scanCommand);
             const items = scanResult.Items;
             if (!items || items.length === 0) {
-                  console.log("No items found in the table.");
                   return;
             }
 
             for (const item of items) {
-                  const primaryKey = item.id; // Assuming 'id' is the primary key of the table
+                  const primaryKey = item.id;
 
                   if (!primaryKey) {
                         console.error("Item missing primary key:", item);
@@ -218,7 +211,6 @@ export const updateAllRecordsInTableWithAvatar = async (dynamoDBClient: any, ima
             }
             return;
       } catch (error) {
-            console.error('Error updating records with avatar:', error);
             throw error;
       }
 }
@@ -232,19 +224,14 @@ export const updateAllRecordsInTableWithEmail = async (dynamoDBClient: any, tabl
             const scanResult = await dynamoDBClient.send(scanCommand);
             const items = scanResult.Items;
             if (!items || items.length === 0) {
-                  console.log("No items found in the table.");
                   return; // Không có gì để update => cũng không lỗi
             }
 
             for (const item of items) {
-                  const primaryKey = item.id; // Assuming 'id' is the primary key of the table
-                  if (!primaryKey) {
-                        console.error("Item missing primary key:", item);
-                        continue; // bỏ qua nhưng không thất bại toàn bộ
-                  }
+                  const primaryKey = item.id;
                   const updateCommand = new UpdateItemCommand({
                         TableName: tableName,
-                        Key: { id: primaryKey },
+                        Key: { id: { S: primaryKey.S } },
                         UpdateExpression: "SET email = :email",
                         ExpressionAttributeValues: {
                               ":email": { S: "automail@gmail.com" }
@@ -256,7 +243,6 @@ export const updateAllRecordsInTableWithEmail = async (dynamoDBClient: any, tabl
 
             return; // thành công toàn bộ
       } catch (error) {
-            console.log('Error updating records:', error);
             return false; // thất bại
       }
 }
@@ -264,24 +250,11 @@ export const updateAllRecordsInTableWithEmail = async (dynamoDBClient: any, tabl
 // Update them with role
 export const updateAllRecordsInTableWithRole = async (dynamoDBClient: any, usersTable: any) => {
       try {
-            console.log('Set ROLE LOOP');
             const scanCommand = new ScanCommand({ TableName: usersTable });
-            console.log('scanCommand', scanCommand);
             const scanResult = await dynamoDBClient.send(scanCommand);
-            console.log('scanResult', scanResult);
             const items = scanResult.Items;
-            if (!items || items.length === 0) {
-                  console.log("No items found in the table.");
-                  return;
-            }
-
             for (const item of items) {
                   const primaryKey = item.id;
-                  if (!primaryKey) {
-                        console.log("Item missing primary key:", item);
-                        continue;
-                  }
-
                   const updateCommand = new UpdateItemCommand({
                         TableName: usersTable,
                         Key: { id: primaryKey },
@@ -291,13 +264,10 @@ export const updateAllRecordsInTableWithRole = async (dynamoDBClient: any, users
                         },
                   });
 
-                  console.log('updateCommand', updateCommand);
-                  const result = await dynamoDBClient.send(updateCommand);
-                  console.log('result', result);
+                  await dynamoDBClient.send(updateCommand);
             }
             return;
       } catch (error) {
-            console.log('Error updating records with role:', error);
-            throw error;
+            throw new Error(`Error updating records with role: ${error.message}`);
       }
 }

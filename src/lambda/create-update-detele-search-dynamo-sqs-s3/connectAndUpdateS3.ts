@@ -27,7 +27,6 @@ export const createPreUrlUpdateS3 = async (s3Client: any, bucketName: any, nameC
             }),
         });
     } catch (err) {
-        console.error(err);
         return {
             statusCode: 500,
             body: JSON.stringify({ error: 'Đã xảy ra lỗi khi tạo presigned URL' }),
@@ -67,12 +66,9 @@ export const getAllContentFromS3Uploaded = async (params: any, s3: any) => {
             }
             return obj;
         });
-
-        console.log('Doc noi dung thanh cong')
         return jsonData;
     }
     catch (error) {
-        console.error("read noi dung csv thanh cong:", error);
         throw error;
     }
 }
@@ -82,7 +78,6 @@ export const createNewBucketS3 = async (s3: any, bucketDestination: any) => {
     try {
         // Check if bucket exists
         await s3.send(new HeadBucketCommand({ Bucket: bucketDestination }));
-        console.log(`Bucket ${bucketDestination} already exists.`);
     } catch (error: any) {
         if (error.$metadata?.httpStatusCode === 404) {
             // Bucket does not exist, create it
@@ -93,9 +88,7 @@ export const createNewBucketS3 = async (s3: any, bucketDestination: any) => {
                 },
             } as any;
             await s3.send(new CreateBucketCommand(createBucketParams));
-            console.log(`Bucket ${bucketDestination} created successfully.`);
         } else {
-            console.error("Error creating new bucket S3:", error);
             throw error;
         }
     }
@@ -104,7 +97,6 @@ export const createNewBucketS3 = async (s3: any, bucketDestination: any) => {
 //Copy file from one bucket to another
 export const copyItemToNewBucket = async (s3: any, newBucket: any, newImageUrl: any, path: any) => {
     try {
-        console.log('Bat dau copy file tu bucket cu sang bucket moi');
         const params = {
             Bucket: newBucket,
             Key: newImageUrl,
@@ -112,11 +104,9 @@ export const copyItemToNewBucket = async (s3: any, newBucket: any, newImageUrl: 
         };
         const command = new PutObjectCommand(params);
         await s3.send(command);
-        console.log('Upload new image to S3 bucket successfully');
         return true;
 
     } catch (error) {
-        console.error("Copy file from one bucket to another error:", error);
         throw error;
     }
 }

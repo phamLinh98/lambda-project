@@ -98,7 +98,6 @@ describe("Lambda Handler", () => {
   });
 
   it("should exit early for non-CSV file", async () => {
-
     // Gọi handler với một sự kiện không phải là file CSV
     const nonCsvEvent = {
       Records: [
@@ -110,12 +109,10 @@ describe("Lambda Handler", () => {
         },
       ],
     };
-
     // Mock event for testing, sự kiện s3 không phải file .csv
     const result = await handler(nonCsvEvent);
     // Expect the handler to return early with a 200 status code
     expect(result.statusCode).toBe(500);
-
     // Expect the response body to indicate no action taken
     expect(JSON.parse(result.body).message).toBe('Not a CSV file.  No action taken.');
   });
@@ -125,7 +122,6 @@ describe("Lambda Handler", () => {
     (secretsManager.getSecretOfKey as jest.Mock).mockRejectedValue(
       new Error("Secret error")
     );
-
     const result = await handler(mockEvent);
       // Expect the handler to return a 500 status code
     expect(result.statusCode).toBe(500);
