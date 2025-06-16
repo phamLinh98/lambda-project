@@ -9,12 +9,15 @@ import { getSecretOfKey } from "../get-secret-key-from-manager";
 export const handler = async (event: any) => {
   try {
     console.log('event', event);
+    // 4.1 Lấy bucketName bucketCsvName
     const bucketName = (await getSecretOfKey("bucketCsvName")) as any;
+
+    // 4.2 Lấy tên bảng uploadCsvTableName
     const uploadCsvTable = (await getSecretOfKey("uploadCsvTableName")) as any;
     const s3Client = await connectToS3Bucket();
     const dynamoDB = await getInstanceDynamoDB();
 
-    // Create a random UUID
+    // 4.3 Tạo hàm generateUUID để tạo ra một UUID duy nhất
     const generateUUID = () => {
       return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
         /[xy]/g,
@@ -26,9 +29,10 @@ export const handler = async (event: any) => {
       );
     };
 
+    // 4.4 Tạo tên tệp bằng UUID với hàm generateUUID
     const fileName = generateUUID();
 
-    // Update Table 'Upload-csv' In DynamoDB tobe 'Uploading'
+    // 4.5 Cập nhật trạng thái của bảng DynamoDB thành "Uploading"
     await updateTableInDynamoDB(
       dynamoDB,
       uploadCsvTable,
@@ -36,13 +40,13 @@ export const handler = async (event: any) => {
       "Uploading"
     );
 
-    // Set name csv saved in S3 bucket
+    // 4.6 Tạo tên tệp CSV để lưu vào S3 bucket với format "csv/{fileName}.csv"
     const nameCsvSaveIntoS3Bucket = "csv/" + fileName + ".csv";
 
-    // Set the time expired for the presigned URL
+    // 4.7 Đặt thời gian hết hạn của URL đã ký là 3600 giây (1 giờ)
     const timeExpired = 3600;
 
-    // Create new Presigned URL to Access S3 bucket
+    // 4.8 Tạo Pre-signed URL để cập nhật tệp CSV vào S3 bucket
     const data = await createPreUrlUpdateS3(
       s3Client,
       bucketName,
@@ -51,8 +55,7 @@ export const handler = async (event: any) => {
       fileName
     );
 
-    // trong Jest lý do gán ngay url cho hàm createPreUrlUpdateS3 , đúng ra nếu chuẩn phải dùng data cho 1 step nữa mới hợp lý
-    // nhưng ở trường hợp data này đã xong việc của lambda rồi nên việc mock dữ liệu cho hàm createPreUrlUpdateS3 có thể nói là ko cần thiết
+    // 4.9 Trả về Pre-signed URL đã tạo
     return data;
   } catch (error) {
     // console.error("Call Lambda Fail");

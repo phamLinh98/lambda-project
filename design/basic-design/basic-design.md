@@ -1,5 +1,7 @@
 # Thiết kế Chi tiết cho Hệ thống Tải lên và Xử lý File CSV
 
+![Basic Design](Untitled%20Diagram.drawio.svg)
+
 ## 1. Tổng quan
 
 Tài liệu này cung cấp thiết kế chi tiết cho một hệ thống cho phép người dùng tải lên file CSV chứa thông tin người dùng (`name`, `age`, `position`, `salary`), xử lý file, lưu dữ liệu vào bảng DynamoDB, và thực hiện các thao tác hàng loạt bổ sung (tạo avatar, gán vai trò, và tạo email). Hệ thống được triển khai trong một Virtual Private Cloud (VPC) trên AWS, sử dụng các dịch vụ như S3, Lambda, API Gateway, SQS, và DynamoDB.
