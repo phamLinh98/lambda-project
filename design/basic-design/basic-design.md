@@ -12,6 +12,17 @@ Hệ thống được triển khai trong một VPC trên AWS, với các thành 
 
 - **Client (Máy trạm)**: Ứng dụng web hoặc desktop nơi người dùng tải lên file CSV chứa dữ liệu người dùng.
 - **API Gateway**: Điểm vào cho các yêu cầu từ client, xử lý khởi tạo tải file và kiểm tra trạng thái.
+  - API details: 
+    - API name: `LinhClassApi` 
+    - IPv4
+    - Routes: 
+      - `GET /upload-csv`: Khởi tạo quá trình tải file CSV.
+      - `GET /upload-status`: Kiểm tra trạng thái xử lý file.
+    - Cors: 
+      - `Access-Control-Allow-Origin`: `*`
+      - `Access-Control-Allow-Methods`: `GET, POST, PUT`
+      - `Access-Control-Allow-Headers`: `Content-Type, Authorization`
+    - Invoke URL: `https://<api-id>.execute-api.<region>.amazonaws.com`
 - **Lambda Functions**: Xử lý logic nghiệp vụ cho việc tải file, xử lý, và các thao tác hàng loạt.
 - **S3 Buckets**:
   - `linhclass-csv-bucket`: Lưu trữ các file CSV đã tải lên.
@@ -20,10 +31,8 @@ Hệ thống được triển khai trong một VPC trên AWS, với các thành 
 - **SQS Queue**: Quản lý xử lý bất đồng bộ cho các lô dữ liệu người dùng.
 - **Dead Letter Queue (DLQ)**: Ghi nhận các tin nhắn thất bại để xử lý lỗi.
 - **DynamoDB Tables**:
-  - `upload-status`: Theo dõi trạng thái của quá trình tải và xử lý file.
-  - `User`: Lưu trữ dữ liệu người dùng đã xử lý.
-  - `error-log`: Ghi lại lỗi từ các tin nhắn SQS thất bại.
-
+  - `upload-status`: Theo dõi trạng thái của quá trình tải `Uploading, Uploaded, InProcessing, InsertSuccess, BatchRunning, Success, Failed`.
+  - `User`: Lưu trữ dữ liệu người dùng đã xử lý bao gồm `name`, `age`, `position`, `salary`, `role`, và `email`.
 ## 3. Luồng Xử lý
 
 ### 3.1 Khởi tạo Tải File
@@ -32,54 +41,59 @@ Hệ thống được triển khai trong một VPC trên AWS, với các thành 
    - Client gửi yêu cầu POST đến API Gateway để khởi tạo việc tải file CSV chứa dữ liệu người dùng (`name`, `age`, `position`, `salary`).
    - Ví dụ yêu cầu:
      ```http
-     POST /upload/init
+     GET /upload-csv
      Content-Type: application/json
      {
-       "filename": "users.csv"
+       "filename": "demo.csv"
      }
      ```
 2. **API Gateway**:
-   - Chuyển tiếp yêu cầu đến Lambda Function 1 (`InitUploadLambda`).
-3. **Lambda Function 1 (`InitUploadLambda`)**:
+   - API Gateway trigger đến Lambda Function 1 (`UploadCsvCreatePreUrlLambda`) thông qua call API.
+3. **Lambda Function 1 (`UploadCsvCreatePreUrlLambda`)**:
    - Tạo một `batchID` duy nhất (UUID).
    - Chèn một bản ghi vào bảng `upload-status` trong DynamoDB:
      ```json
      {
        "batchID": "<uuid>",
-       "status": "Uploading",
-       "timestamp": "<ISO8601>",
-       "filename": "users.csv"
+       "status": "Uploading"
      }
      ```
    - Tạo một presigned URL để tải file lên `linhclass-csv-bucket` với key `<batchID>.csv`.
    - Trả về presigned URL cho client:
      ```json
      {
-       "batchID": "<uuid>",
-       "presignedURL": "<url>",
-       "status": "Uploading"
+       "presignedURL": "<url>"
      }
      ```
 4. **Client**:
-   - Sử dụng presigned URL để tải file CSV lên `linhclass-csv-bucket`.
-
+   - Call presigned URL bằng PUT request để tải csv lên và lưu vào `linhclass-csv-bucket`:
+     ```http
+     PUT <presignedURL>
+     Content-Type: text/csv
+     ```
 ### 3.2 Kích hoạt Xử lý File
 
 1. **S3 Trigger**:
-   - Khi file được tải lên `linhclass-csv-bucket`, một sự kiện S3 PUT kích hoạt Lambda Function 2 (`ProcessUploadLambda`).
-2. **Lambda Function 2 (`ProcessUploadLambda`)**:
+   - Khi file được tải lên `linhclass-csv-bucket`, một sự kiện S3 trigger Lambda Function 2 (`GetBatchIdUploadedLambda`).
+2. **Lambda Function 2 (`GetBatchIdUploadedLambda`)**:
    - Trích xuất `batchID` từ tên file (`<batchID>.csv`).
    - Cập nhật trạng thái trong bảng `upload-status` thành `"Uploaded"` cho bản ghi có `batchID` tương ứng.
    - Gửi một tin nhắn chứa `batchID` đến hàng đợi SQS.
+   - Message format:
+      ```json
+      {
+        "batchID": "<uuid>"
+      }
+      ```
 
 ### 3.3 Xử lý Dữ liệu Người dùng
 
 1. **SQS Trigger**:
-   - Tin nhắn từ SQS kích hoạt Lambda Function 3 (`ProcessUsersLambda`).
-2. **Lambda Function 3 (`ProcessUsersLambda`)**:
+   - Tin nhắn từ SQS trigger Lambda Function 3 (`BatchRunningLambda`).
+2. **Lambda Function 3 (`BatchRunningLambda`)**:
    - Cập nhật trạng thái trong bảng `upload-status` thành `"InProcessing"`.
    - Đọc file CSV từ `linhclass-csv-bucket` sử dụng `batchID`.
-   - Lưu danh sách người dùng vào bảng `User` trong DynamoDB với cấu trúc:
+   - Lưu danh sách người dùng vào bảng `User` trong DynamoDB với cấu trúc tương tự trong csv.
      ```json
      {
        "id": "<uuid>",
@@ -89,7 +103,6 @@ Hệ thống được triển khai trong một VPC trên AWS, với các thành 
        "salary": <number>
      }
      ```
-   - Nếu có lỗi, cập nhật trạng thái thành `"Failed"` và kết thúc.
    - Nếu thành công, cập nhật trạng thái thành `"InsertSuccess"`.
    - Lặp qua danh sách người dùng:
      - Cập nhật trạng thái thành `"BatchRunning"`.
@@ -98,7 +111,7 @@ Hệ thống được triển khai trong một VPC trên AWS, với các thành 
        2. **API-2 (AssignRole)**: Cập nhật bảng `User`, thêm trường `role` với giá trị `"employee"`.
        3. **API-3 (GenerateEmail)**: Cập nhật bảng `User`, thêm trường `email` với định dạng `<name><age><role><position>@linhclass.biz`.
      - Nếu tất cả API thành công, cập nhật trạng thái thành `"Success"`.
-     - Nếu có lỗi, gửi tin nhắn vào Dead Letter Queue.
+     - Nếu có lỗi trong quá trình polling, gửi tin nhắn vào Dead Letter Queue và trigger lambda Function 4 (`LogErrorLambda`) ghi log lỗi vào bảng `error-log`.
 
 ### 3.4 Xử lý Lỗi
 
@@ -120,7 +133,7 @@ Hệ thống được triển khai trong một VPC trên AWS, với các thành 
 1. **Client Polling**:
    - Client gửi yêu cầu GET đến API Gateway mỗi 5 giây để kiểm tra trạng thái:
      ```http
-     GET /upload/status?batchID=<uuid>
+     GET /upload-status
      ```
 2. **API Gateway**:
    - Chuyển tiếp yêu cầu đến Lambda Function 5 (`GetStatusLambda`).
@@ -134,7 +147,7 @@ Hệ thống được triển khai trong một VPC trên AWS, với các thành 
        "timestamp": "<ISO8601>"
      }
      ```
-   - Client dừng polling khi trạng thái là `"Success"` hoặc `"Failed"`.
+   - Client dừng polling khi trạng thái là `"Success"`
 
 ## 4. Mô hình Dữ liệu
 
@@ -167,7 +180,7 @@ Hệ thống được triển khai trong một VPC trên AWS, với các thành 
 
 ## 5. Đặc tả API
 
-### 5.1 POST `/upload/init`
+### 5.1 GET `/upload-csv`
 
 - **Mô tả**: Khởi tạo quá trình tải file CSV.
 - **Request**:
@@ -185,7 +198,7 @@ Hệ thống được triển khai trong một VPC trên AWS, với các thành 
   }
   ```
 
-### 5.2 GET `/upload/status`
+### 5.2 GET `/upload-status`
 
 - **Mô tả**: Kiểm tra trạng thái xử lý file.
 - **Query Parameter**: `batchID=<uuid>`
@@ -257,17 +270,15 @@ Hệ thống được triển khai trong một VPC trên AWS, với các thành 
 
 ## 6. Xử lý Lỗi
 
-- **Lỗi tải file**: Nếu tải file lên S3 thất bại, cập nhật trạng thái thành `"Failed"` trong `upload-status`.
-- **Lỗi xử lý CSV**: Nếu file CSV không đúng định dạng, gửi lỗi vào DLQ và cập nhật trạng thái thành `"Failed"`.
 - **Lỗi API**: Nếu bất kỳ API nào (API-1, API-2, API-3) thất bại, gửi tin nhắn vào DLQ và ghi lỗi vào bảng `error-log`.
 - **Timeout Lambda**: Cấu hình timeout tối đa 15 phút cho Lambda xử lý dữ liệu lớn.
-- **SQS Retry**: Cấu hình SQS retry tối đa 3 lần trước khi chuyển tin nhắn vào DLQ.
+- **SQS Retry**: Cấu hình SQS retry tối đa 5 lần trước khi chuyển tin nhắn vào DLQ.
 
 ## 7. Cân nhắc Hiệu suất
 
 - **DynamoDB Throughput**: Sử dụng chế độ On-Demand để xử lý lưu lượng không đồng đều.
 - **S3 Scalability**: S3 tự động mở rộng, không cần cấu hình bổ sung.
-- **Lambda Concurrency**: Giới hạn concurrency của `ProcessUsersLambda` ở mức 10 để tránh quá tải DynamoDB.
+- **Lambda Concurrency**: Giới hạn concurrency của `BatchingLambda` ở mức 10 để tránh quá tải DynamoDB.
 - **File Size Limit**: Giới hạn kích thước file CSV tối đa 10MB để đảm bảo Lambda xử lý trong giới hạn thời gian.
 
 ## 8. Bảo mật
@@ -289,7 +300,6 @@ Hệ thống được triển khai trong một VPC trên AWS, với các thành 
 - **Integration Test**: Kiểm tra toàn bộ luồng từ tải file đến xử lý và cập nhật trạng thái.
 - **Load Test**: Mô phỏng 100 file CSV với 1000 bản ghi mỗi file để kiểm tra hiệu suất.
 - **Error Test**: Mô phỏng lỗi (file CSV sai định dạng, API timeout) để kiểm tra xử lý lỗi và DLQ.
-
 ## 11. Triển khai
 
 - **CICD Pipeline**: Sử dụng AWS CodePipeline và CodeBuild để tự động hóa triển khai Lambda, API Gateway, và các tài nguyên khác.
