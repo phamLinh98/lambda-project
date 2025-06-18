@@ -18,6 +18,22 @@
       "args": ["--coverage"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Lambda Handler (LocalStack)",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/src/lambda/get-status-from-dynamodb-lambda/mockRunHandler.ts",
+      "runtimeArgs": ["-r", "ts-node/register"],
+      "env": {
+        "AWS_REGION": "us-east-1",
+        "AWS_ACCESS_KEY_ID": "test",
+        "AWS_SECRET_ACCESS_KEY": "test",
+        "AWS_ENDPOINT": "http://localhost:4566"
+      },
+      "cwd": "${workspaceFolder}",
+      "outFiles": []
     }
   ]
 }
