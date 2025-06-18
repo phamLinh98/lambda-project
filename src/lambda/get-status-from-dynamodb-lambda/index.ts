@@ -1,6 +1,9 @@
 import { addCorsHeaders } from "../../utils/cors";
 import { connectToDynamoDb, getItemFromDynamoDB } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateDynamoDb";
 import { getSecretOfKey } from "../get-secret-key-from-manager";
+// import { addCorsHeaders } from "./mockCors";
+// import { getSecretOfKey } from "./mockSecretKey";
+// import { connectToDynamoDb, getItemFromDynamoDB } from "./mockConnectDB";
 
 export const handler = async (event:any) => {
       //Get id from params path
@@ -11,15 +14,14 @@ export const handler = async (event:any) => {
       const dynamodb = await connectToDynamoDb();
 
       //Get the table name from the secret manager
-      const uploadCsvTable = await getSecretOfKey("uploadCsvTableName");
+      const uploadCsvTable = await getSecretOfKey("UploadCsvTableName");
 
       console.log('uploadCsvTable >>>',uploadCsvTable);
       //Get the item from DynamoDB
       try {
             console.log('LOG1');
             const data = await getItemFromDynamoDB(dynamodb, uploadCsvTable, getIdFromParams);
-            console.log('data>>>', data.length);
-            console.log('LOG2')
+            console.log('data', data[0]);
             if (data.length > 0) {
                   return addCorsHeaders({
                         statusCode: 200,
