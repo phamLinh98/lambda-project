@@ -10,29 +10,92 @@ Tài liệu này cung cấp thiết kế chi tiết cho một hệ thống cho p
 
 Hệ thống được triển khai trong một VPC trên AWS, với các thành phần chính sau:
 
-- **Client (Máy trạm)**: Ứng dụng web hoặc desktop nơi người dùng tải lên file CSV chứa dữ liệu người dùng.
+- **Client (Web App)**:
+  - Gọi tới API Gateway GET `/get-presigned-url` để lấy presigned URL.
+  - Sử dụng presigned URL để tải file CSV lên S3 bucket `linhclass-csv-bucket`.
+  - Kiểm tra trạng thái tải file thông qua API Gateway GET `/upload-status`.
 - **API Gateway**: Điểm vào cho các yêu cầu từ client, xử lý khởi tạo tải file và kiểm tra trạng thái.
-  - API details: 
-    - API name: `LinhClassApi` 
-    - IPv4
-    - Routes: 
-      - `GET /upload-csv`: Khởi tạo quá trình tải file CSV.
-      - `GET /upload-status`: Kiểm tra trạng thái xử lý file.
-    - Cors: 
+  - API details:
+    - API name: `LinhClassApi`
+    - Routes:
+      - `GET /get-presigned-url`: Tạo presigned URL để tải file CSV. Trigger `UploadCsvCreatePreUrlLambda`.
+      - `GET /upload-status`: Kiểm tra trạng thái xử lý file. Trigger `GetUploadStatusLambda`.
+      - `PUT /avatar`: Tạo avatar cho người dùng. Trigger `PutAvatarLambda`.
+      - `PUT /role`: Gán vai trò cho người dùng. Trigger `PutRoleLambda`.
+      - `PUT /email`: Tạo email cho người dùng. Trigger `PutEmailLambda`.
+    - Cors:
       - `Access-Control-Allow-Origin`: `*`
       - `Access-Control-Allow-Methods`: `GET, POST, PUT`
       - `Access-Control-Allow-Headers`: `Content-Type, Authorization`
-    - Invoke URL: `https://<api-id>.execute-api.<region>.amazonaws.com`
 - **Lambda Functions**: Xử lý logic nghiệp vụ cho việc tải file, xử lý, và các thao tác hàng loạt.
+  - `UploadCsvCreatePreUrlLambda`:
+    - Lambda này được kích hoạt bởi API Gateway với route GET `/get-presigned-url`.
+    - Tạo presigned URL và ghi trạng thái ban đầu `Uploading` vào bảng `upload-status` trong DynamoDB.
+  - `GetUploadStatusLambda`:
+    - Lambda này được kích hoạt bởi API Gateway với route GET `/upload-status`.
+    - Truy vấn trạng thái tải file từ DynamoDB bảng `upload-status` và trả về cho client.
+  - `GetBatchIdUploadedLambda`:
+    - Lambda này được kích hoạt bởi S3 bucket `linhclass-csv-bucket` khi có file mới được tải lên.
+    - Trích xuất `batchID` từ tên file và cập nhật trạng thái `Uploaded` trong bảng `upload-status`.
+    - Gửi tin nhắn đến SQS `linhclass-sqs-queue` để kích hoạt xử lý file.
+  - `BatchRunningLambda`:
+    - Lambda này được kích hoạt bởi SQS `linhclass-sqs-queue`.
+    - Đọc file CSV từ S3 bucket `linhclass-csv-bucket`, lưu dữ liệu vào bảng `user`, và gọi các API bổ sung để tạo avatar, gán vai trò, và tạo email.
+    - Cập nhật trạng thái trong bảng `upload-status` theo từng bước xử lý.
+      - `InProcessing`: Khi bắt đầu xử lý file.
+      - `InsertSuccess`: Khi dữ liệu đã được lưu vào bảng `user`.
+      - `BatchRunning`: Khi đang thực hiện các thao tác hàng loạt (tạo avatar, gán vai trò, tạo email).
+        - Thao tác hàng loạt bao gồm:
+          1. Gọi API để tạo avatar cho người dùng (`PUT /avatar`).
+          2. Gọi API để gán vai trò cho người dùng (`PUT /role`).
+          3. Gọi API để tạo email cho người dùng (`PUT /email`).
+      - Nếu tất cả các API thành công, cập nhật trạng thái thành `Success`.
+      - Nếu có lỗi xảy thì update trạng thái thành `Failed`.
+  - `LogErrorLambda`:
+    - Lambda này được kích hoạt bởi Dead Letter Queue (DLQ) `linhclass-sqs-queue-dlq`.
+    - Ghi log lỗi vào bảng `error-log` trong DynamoDB với thông tin chi tiết về lỗi.
+      - `batchID`: ID của lô dữ liệu gặp lỗi.
+      - `errorMessage`: Thông điệp lỗi chi tiết.
+      - `timestamp`: Thời gian xảy ra lỗi.
+  - `PutAvatarLambda`:
+    - Lambda này được kích hoạt bởi API Gateway với route PUT `/avatar`.
+    - Sao chép ảnh mặc định `default-avatar.jpg` từ `linhclass-storage-bucket` sang `linhclass-avatar-bucket` và cập nhật trường `avatarUrl` trong bảng `User`.
+    - Đổi tên ảnh thành `<user.id>.jpg` và lưu trữ đường dẫn trong trường `avatarUrl`.
+  - `PutRoleLambda`:
+    - Lambda này được kích hoạt bởi API Gateway với route PUT `/role`.
+    - Cập nhật trường `role` trong bảng `User` với giá trị mặc định là `"employee"`.
+  - `PutEmailLambda`:
+    - Lambda này được kích hoạt bởi API Gateway với route PUT `/email`.
+    - Tạo email cho người dùng theo định dạng `<name><age><role><position>@linhclass.biz` và cập nhật trường `email` trong bảng `User`.
 - **S3 Buckets**:
-  - `linhclass-csv-bucket`: Lưu trữ các file CSV đã tải lên.
-  - `linhclass-storage-bucket`: Lưu trữ hình ảnh nguồn để tạo avatar.
-  - `linhclass-avatar-bucket`: Lưu trữ avatar của người dùng.
+  - `linhclass-csv-bucket`: 
+    - Lưu trữ file CSV được tải lên từ client.
+    - Kích hoạt Lambda Function `GetBatchIdUploadedLambda` khi có file mới được tải lên.
+    - Presigned URL được tạo để client có thể tải file lên bucket này.
+    - File được lưu với tên định dạng `<batchID>.csv`.
+  - `linhclass-storage-bucket`:
+    - Lưu trữ ảnh mặc định cho người dùng (`default-avatar.jpg`).
+  - `linhclass-avatar-bucket`:
+    - Lưu trữ ảnh avatar đã được tạo cho người dùng.
 - **SQS Queue**: Quản lý xử lý bất đồng bộ cho các lô dữ liệu người dùng.
-- **Dead Letter Queue (DLQ)**: Ghi nhận các tin nhắn thất bại để xử lý lỗi.
+  - `linhclass-sqs-queue`:
+    - Nhận tin nhắn từ Lambda Function `GetBatchIdUploadedLambda` khi có file CSV được tải lên.
+    - Kích hoạt Lambda Function `BatchRunningLambda` để xử lý dữ liệu người dùng. 
+    - Tin nhắn chứa `batchID` để xác định lô dữ liệu cần xử lý.
+    - **Dead Letter Queue (DLQ)**: `linhclass-sqs-queue-dlq` để ghi nhận các tin nhắn không xử lý thành công sau 3 lần thử.
+  - `linhclass-sqs-queue-dlq`:
+    - Nhận các tin nhắn không xử lý thành công từ `linhclass-sqs-queue` sau 3 lần thử.
+    - Kích hoạt Lambda Function `LogErrorLambda` để ghi log lỗi vào bảng `error-log`.
 - **DynamoDB Tables**:
-  - `upload-status`: Theo dõi trạng thái của quá trình tải `Uploading, Uploaded, InProcessing, InsertSuccess, BatchRunning, Success, Failed`.
-  - `User`: Lưu trữ dữ liệu người dùng đã xử lý bao gồm `name`, `age`, `position`, `salary`, `role`, và `email`.
+  - `upload-status`: 
+    - Theo dõi trạng thái của quá trình tải `Uploading, Uploaded, InProcessing, InsertSuccess, BatchRunning, Success, Failed`.
+    - Lưu trữ thông tin về `batchID`, `status`, `timestamp`, và `filename`.
+  - `user`: 
+    - Lưu trữ dữ liệu người dùng đã xử lý bao gồm `name`, `age`, `position`, `salary`, `role`, `avatarUrl`, và `email`.
+    - Mỗi bản ghi có `id` là UUID duy nhất.
+  - `error-log`:
+    - Ghi nhận các lỗi xảy ra trong quá trình xử lý, bao gồm `batchID`, `errorMessage`, và `timestamp`.
+
 ## 3. Luồng Xử lý
 
 ### 3.1 Khởi tạo Tải File
@@ -71,6 +134,7 @@ Hệ thống được triển khai trong một VPC trên AWS, với các thành 
      PUT <presignedURL>
      Content-Type: text/csv
      ```
+
 ### 3.2 Kích hoạt Xử lý File
 
 1. **S3 Trigger**:
@@ -80,11 +144,11 @@ Hệ thống được triển khai trong một VPC trên AWS, với các thành 
    - Cập nhật trạng thái trong bảng `upload-status` thành `"Uploaded"` cho bản ghi có `batchID` tương ứng.
    - Gửi một tin nhắn chứa `batchID` đến hàng đợi SQS.
    - Message format:
-      ```json
-      {
-        "batchID": "<uuid>"
-      }
-      ```
+     ```json
+     {
+       "batchID": "<uuid>"
+     }
+     ```
 
 ### 3.3 Xử lý Dữ liệu Người dùng
 
@@ -300,6 +364,7 @@ Hệ thống được triển khai trong một VPC trên AWS, với các thành 
 - **Integration Test**: Kiểm tra toàn bộ luồng từ tải file đến xử lý và cập nhật trạng thái.
 - **Load Test**: Mô phỏng 100 file CSV với 1000 bản ghi mỗi file để kiểm tra hiệu suất.
 - **Error Test**: Mô phỏng lỗi (file CSV sai định dạng, API timeout) để kiểm tra xử lý lỗi và DLQ.
+
 ## 11. Triển khai
 
 - **CICD Pipeline**: Sử dụng AWS CodePipeline và CodeBuild để tự động hóa triển khai Lambda, API Gateway, và các tài nguyên khác.
