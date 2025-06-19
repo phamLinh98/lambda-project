@@ -1,4 +1,4 @@
-import { handler } from "./index"; // hoặc đổi thành tên file handler thực tế nếu khác
+import { handler } from "../src/lambda/get-status-from-dynamodb-lambda";
 
 (async () => {
   const event = {

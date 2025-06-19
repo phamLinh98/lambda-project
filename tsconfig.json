@@ -11,5 +11,5 @@
       "*": ["node_modules/*"]
     }
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "localstack/test.ts", "localstack/mock-secret-key.ts", "localstack/mock-cors.ts", "localstack/mock-dynamo-db.ts"]
 }
