@@ -24,7 +24,7 @@
       "request": "launch",
       "name": "Debug Lambda Handler (LocalStack)",
       "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}/src/lambda/get-status-from-dynamodb-lambda/mockRunHandler.ts",
+      "program": "${workspaceFolder}/localstack/mock-handler-event.ts",
       "runtimeArgs": ["-r", "ts-node/register"],
       "env": {
         "AWS_REGION": "us-east-1",

@@ -35,3 +35,14 @@ aws --endpoint-url=http://localhost:4566 dynamodb get-item \
   --output json | jq
 
 aws --endpoint-url=http://localhost:4566 dynamodb scan \
+
+aws --endpoint-url=http://localhost:4566 s3api list-buckets
+--output json | jq
+
+aws --endpoint-url=http://localhost:4566 s3api create-bucket \
+  --bucket my-mock-bucket \
+  --region us-east-1
+  --output json | jq
+
+aws --endpoint-url=http://localhost:4566 s3api get-object --bucket my-mock-bucket --key example.csv example.csv
+cat example.csv

@@ -267,7 +267,7 @@ export const updateAllRecordsInTableWithRole = async (dynamoDBClient: any, users
                   await dynamoDBClient.send(updateCommand);
             }
             return;
-      } catch (error) {
+      } catch (error: any) {
             throw new Error(`Error updating records with role: ${error.message}`);
       }
 }

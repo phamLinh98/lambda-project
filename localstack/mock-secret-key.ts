@@ -1,21 +1,21 @@
 // get-secret-key-from-manager.ts
 import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
 
-const secretsClient = new SecretsManagerClient({
-  region: "us-east-1",
-  endpoint: "http://localhost:4566",
-  credentials: { accessKeyId: "test", secretAccessKey: "test" },
-});
+// const secretsClient = new SecretsManagerClient({
+//   region: "us-east-1",
+//   endpoint: "http://localhost:4566",
+//   credentials: { accessKeyId: "test", secretAccessKey: "test" },
+// });
 
-(async () => {
-  try {
-    const command = new GetSecretValueCommand({ SecretId: "uploadCsvTableName" });
-    const data = await secretsClient.send(command);
-    console.log("Secret:", data.SecretString);
-  } catch (error) {
-    console.error("Error fetching secret:", error);
-  }
-})();
+// (async () => {
+//   try {
+//     const command = new GetSecretValueCommand({ SecretId: "UploadCsvTableName" });
+//     const data = await secretsClient.send(command);
+//     console.log("Secret:", data.SecretString);
+//   } catch (error) {
+//     console.error("Error fetching secret:", error);
+//   }
+// })();
 
 
 export const getSecretOfKey = async (key: string): Promise<string> => {
