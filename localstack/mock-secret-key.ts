@@ -1,32 +1,27 @@
-// get-secret-key-from-manager.ts
-import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
+import {
+  GetSecretValueCommand,
+  SecretsManagerClient,
+} from "@aws-sdk/client-secrets-manager";
 
-// const secretsClient = new SecretsManagerClient({
-//   region: "us-east-1",
-//   endpoint: "http://localhost:4566",
-//   credentials: { accessKeyId: "test", secretAccessKey: "test" },
-// });
+const secret_name = "HitoEnvSecret";
+const secretsClient = new SecretsManagerClient({
+  region: "ap-northeast-1",
+  endpoint: "http://localhost:4566",
+  credentials: {
+    accessKeyId: "test",
+    secretAccessKey: "test",
+  },
+});
 
-// (async () => {
-//   try {
-//     const command = new GetSecretValueCommand({ SecretId: "UploadCsvTableName" });
-//     const data = await secretsClient.send(command);
-//     console.log("Secret:", data.SecretString);
-//   } catch (error) {
-//     console.error("Error fetching secret:", error);
-//   }
-// })();
-
-
-export const getSecretOfKey = async (key: string): Promise<string> => {
+export const getSecretOfKey = async (key: any) => {
   try {
-    const command = new GetSecretValueCommand({ SecretId: key });
-    //const data = await secretsClient.send(command);
-    const data = command.input;
-    return data.SecretId || "";
+    const response = (await secretsClient.send(
+      new GetSecretValueCommand({ SecretId: secret_name })
+    )) as any;
+    const secrets = JSON.parse(response.SecretString);
+    return secrets[key];
   } catch (error) {
     console.error(`Error fetching secret ${key}:`, error);
     throw error;
   }
 };
-

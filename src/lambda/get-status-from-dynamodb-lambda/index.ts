@@ -13,7 +13,7 @@ export const handler = async (event:any) => {
       const dynamodb = await connectToDynamoDb();
 
       //Get the table name from the secret manager
-      const uploadCsvTable = await getSecretOfKey("UploadCsvTableName");
+      const uploadCsvTable = await getSecretOfKey("uploadCsvTableName");
 
       console.log('uploadCsvTable >>>',uploadCsvTable);
       //Get the item from DynamoDB

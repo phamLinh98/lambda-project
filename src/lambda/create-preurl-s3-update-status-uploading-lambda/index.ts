@@ -13,7 +13,7 @@ export const handler = async (event: any) => {
     const bucketName = (await getSecretOfKey("bucketCsvName")) as any;
 
     // 4.2 Lấy tên bảng uploadCsvTableName
-    const uploadCsvTable = (await getSecretOfKey("uploadCsvTableName")) as any;
+    const uploadCsvTable = (await getSecretOfKey("UploadCsvTableName")) as any;
     const s3Client = await connectToS3Bucket();
     const dynamoDB = await getInstanceDynamoDB();
 

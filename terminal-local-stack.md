@@ -46,3 +46,33 @@ aws --endpoint-url=http://localhost:4566 s3api create-bucket \
 
 aws --endpoint-url=http://localhost:4566 s3api get-object --bucket my-mock-bucket --key example.csv example.csv
 cat example.csv
+
+
+aws --endpoint-url=http://localhost:4566 \
+  secretsmanager create-secret \
+  --name "HitoEnvSecret" \
+  --secret-string '{"sampleKey":"mySecretData"}' \
+  --region ap-northeast-1
+
+  aws --endpoint-url=http://localhost:4566 secretsmanager create-secret \
+  --name uploadCsvTableName \
+  --secret-string "upload-csv" \
+  --region us-east-1
+
+  aws --endpoint-url=http://localhost:4566 secretsmanager get-secret-value \
+  --secret-id uploadCsvTableName \
+  --region us-east-1
+
+
+  aws --endpoint-url=http://localhost:4566 secretsmanager create-secret \
+  --name HitoEnvSecret \
+  --secret-string '{"uploadCsvTableName": "upload-csv", "bucketCsvName": "linhclass-csv-bucket"}'
+
+  aws --endpoint-url=http://localhost:4566 secretsmanager delete-secret \
+  --secret-id HitoEnvSecret \
+  --force-delete-without-recovery
+
+
+aws --endpoint-url=http://localhost:4566 dynamodb put-item \
+  --table-name upload-csv \
+  --item '{"id": {"S": "123"}}'
