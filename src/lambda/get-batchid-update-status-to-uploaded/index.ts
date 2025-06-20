@@ -3,6 +3,11 @@ import { connectToDynamoDb, updateTableInDynamoDB } from "../create-update-detel
 import { connectToSQS, createNewSQSQueue, getAnSpecificItemFromListSQS, sendNewMessageToSQS } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateSQS";
 import { getSecretOfKey } from "../get-secret-key-from-manager";
 
+// import { addCorsHeaders, connectToDynamoDb, getSecretOfKey } from "../../../localstack/mock-path";
+// import { createNewSQSQueue } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateSQS";
+// import { updateTableInDynamoDB } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateDynamoDb";
+// import { connectToSQS, getAnSpecificItemFromListSQS, sendNewMessageToSQS } from '../../../localstack/mock-sqs';
+
 export const handler = async (event:any) => {
       try {
             // Get the secret key from AWS Secrets Manager

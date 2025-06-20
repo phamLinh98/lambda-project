@@ -1,8 +1,8 @@
-// import { addCorsHeaders } from "../../utils/cors";
-// import { connectToDynamoDb, getItemFromDynamoDB } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateDynamoDb";
-// import { getSecretOfKey } from "../get-secret-key-from-manager";
+import { addCorsHeaders } from "../../utils/cors";
+import { connectToDynamoDb, getItemFromDynamoDB } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateDynamoDb";
+import { getSecretOfKey } from "../get-secret-key-from-manager";
 
-import { addCorsHeaders, connectToDynamoDb, getItemFromDynamoDB, getSecretOfKey } from "../../../localstack/mock-path";
+// import { addCorsHeaders, connectToDynamoDb, getItemFromDynamoDB, getSecretOfKey } from "../../../localstack/mock-path";
 
 export const handler = async (event:any) => {
       //Get id from params path

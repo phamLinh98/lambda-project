@@ -5,9 +5,13 @@ import {
   connectToS3Bucket,
   createPreUrlUpdateS3,
 } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateS3";
+
 // import { getSecretOfKey } from "../../../localstack/mock-secret-key";
 // import { connectToS3Bucket } from "../../../localstack/mock-s3";
 // import { getInstanceDynamoDB, updateTableInDynamoDB } from "../../../localstack/mock-dynamo-db";
+// import {
+//   createPreUrlUpdateS3,
+// } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateS3";
 
 export const handler = async (event: any) => {
   try {
