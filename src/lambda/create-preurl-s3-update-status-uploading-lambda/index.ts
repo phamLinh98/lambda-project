@@ -1,10 +1,13 @@
 import { getInstanceDynamoDB } from "../../db/config";
 import { updateTableInDynamoDB } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateDynamoDb";
+import { getSecretOfKey } from "../get-secret-key-from-manager";
 import {
   connectToS3Bucket,
   createPreUrlUpdateS3,
 } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateS3";
-import { getSecretOfKey } from "../get-secret-key-from-manager";
+// import { getSecretOfKey } from "../../../localstack/mock-secret-key";
+// import { connectToS3Bucket } from "../../../localstack/mock-s3";
+// import { getInstanceDynamoDB, updateTableInDynamoDB } from "../../../localstack/mock-dynamo-db";
 
 export const handler = async (event: any) => {
   try {
@@ -13,7 +16,7 @@ export const handler = async (event: any) => {
     const bucketName = (await getSecretOfKey("bucketCsvName")) as any;
 
     // 4.2 Lấy tên bảng uploadCsvTableName
-    const uploadCsvTable = (await getSecretOfKey("UploadCsvTableName")) as any;
+    const uploadCsvTable = (await getSecretOfKey("uploadCsvTableName")) as any;
     const s3Client = await connectToS3Bucket();
     const dynamoDB = await getInstanceDynamoDB();
 
@@ -58,7 +61,7 @@ export const handler = async (event: any) => {
     // 4.9 Trả về Pre-signed URL đã tạo
     return data;
   } catch (error) {
-    // console.error("Call Lambda Fail");
+     console.error("Call Lambda Fail");
     return {
       statusCode: 500,
       body: JSON.stringify({ message: "Call Lambda PreURL fail" }),

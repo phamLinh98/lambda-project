@@ -26,8 +26,12 @@ aws --endpoint-url=http://localhost:4566 dynamodb put-item \
   --table-name upload-csv \
   --item '{"id": {"S": "add123"}}'
 
-
+// table, dynamoDB
 aws dynamodb list-tables --endpoint-url http://localhost:4566 --output json | jq
+
+aws dynamodb describe-table --table-name upload-csv --endpoint-url http://localhost:4566 --output json | jq '.Table | {TableName: .TableName, KeySchema: .KeySchema, AttributeDefinitions: .AttributeDefinitions}'
+
+aws dynamodb scan --table-name upload-csv --endpoint-url http://localhost:4566 --output json | jq '.Items'
 
 aws --endpoint-url=http://localhost:4566 dynamodb get-item \
   --table-name upload-csv \
@@ -76,3 +80,20 @@ aws --endpoint-url=http://localhost:4566 \
 aws --endpoint-url=http://localhost:4566 dynamodb put-item \
   --table-name upload-csv \
   --item '{"id": {"S": "123"}}'
+
+  aws dynamodb scan --table-name upload-csv --endpoint-url http://localhost:4566 --output json
+
+
+//s3 
+
+aws s3 ls s3://my-mock-bucket --endpoint-url http://localhost:4566
+
+aws s3 cp /Users/linhthusinh/Desktop/SideProject/lambda-project/test.csv s3://my-mock-bucket/test.csv --endpoint-url http://localhost:4566
+
+aws s3 cp test.csv s3://my-mock-bucket/test123.csv --endpoint-url http://localhost:4566
+
+python3 /Users/linhthusinh/Desktop/SideProject/lambda-project/show-s3-bucket.py
+
+aws s3 rm s3://my-mock-bucket --endpoint-url http://localhost:4566 --recursive
+
+aws s3 ls s3://my-mock-bucket --endpoint-url http://localhost:4566
