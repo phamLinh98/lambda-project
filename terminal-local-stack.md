@@ -79,17 +79,41 @@ aws dynamodb scan --table-name upload-csv --endpoint-url http://localhost:4566 -
 
 //s3
 
-aws s3 ls s3://my-mock-bucket --endpoint-url http://localhost:4566
+aws --endpoint-url=http://localhost:4566 s3api create-bucket \
+  --bucket linhclass-csv-bucket \
+  --region ap-northeast-1 \
+  --create-bucket-configuration LocationConstraint=ap-northeast-1 \
+  --output json | jq
 
-aws s3 cp /Users/linhthusinh/Desktop/SideProject/lambda-project/test.csv s3://my-mock-bucket/test.csv --endpoint-url http://localhost:4566
 
-aws s3 cp test.csv s3://my-mock-bucket/test123.csv --endpoint-url http://localhost:4566
+aws --endpoint-url=http://localhost:4566 s3api create-bucket \
+  --bucket linhclass-avatar-bucket \
+  --region ap-northeast-1 \
+  --create-bucket-configuration LocationConstraint=ap-northeast-1 \
+  --output json | jq
+  
+aws s3 ls s3://linhclass-csv-bucket --endpoint-url http://localhost:4566
+
+aws s3 cp /Users/linhthusinh/Desktop/SideProject/lambda-project/test.csv s3://linhclass-csv-bucket/data.csv --endpoint-url http://localhost:4566
+
+aws s3 cp test.csv s3://linhclass-csv-bucket/test.csv --endpoint-url http://localhost:4566
 
 python3 /Users/linhthusinh/Desktop/SideProject/lambda-project/show-s3-bucket.py
 
-aws s3 rm s3://my-mock-bucket --endpoint-url http://localhost:4566 --recursive
+aws s3 rm s3://linhclass-csv-bucket --endpoint-url http://localhost:4566 --recursive
 
-aws s3 ls s3://my-mock-bucket --endpoint-url http://localhost:4566
+aws s3 cp s3://linhclass-csv-bucket/test.csv . --endpoint-url http://localhost:4566
+cat test.csv
+
+aws s3 rb s3://linhclass-csv-bucket --force --endpoint-url http://localhost:4566
+aws s3 rb s3://my-mock-bucket --force --endpoint-url http://localhost:4566
+
+aws s3api put-object \
+  --bucket linhclass-csv-bucket \
+  --key csv/1fab83f3-5260-43d7-afb2-f33cc596896c.csv \
+  --body test.csv \
+  --endpoint-url http://localhost:4566
+
 
 //dynamodb
 
@@ -97,6 +121,12 @@ aws --endpoint-url=http://localhost:4566 dynamodb delete-table --table-name uplo
 
 aws --endpoint-url=http://localhost:4566 dynamodb create-table \
  --table-name upload-csv \
+ --attribute-definitions AttributeName=id,AttributeType=S \
+ --key-schema AttributeName=id,KeyType=HASH \
+ --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5
+
+ aws --endpoint-url=http://localhost:4566 dynamodb create-table \
+ --table-name users \
  --attribute-definitions AttributeName=id,AttributeType=S \
  --key-schema AttributeName=id,KeyType=HASH \
  --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5

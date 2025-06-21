@@ -1,6 +1,7 @@
 //import { handler } from "../src/lambda/get-status-from-dynamodb-lambda";
 //import { handler } from "../src/lambda/create-preurl-s3-update-status-uploading-lambda";
-import { handler } from "../src/lambda/get-batchid-update-status-to-uploaded/index";
+//import { handler } from "../src/lambda/get-batchid-update-status-to-uploaded/index";
+import { handler } from "../src/lambda/get-csv-read-detail-update-inprocessing-lambda";
 
 (async () => {
   const event = {
@@ -9,6 +10,7 @@ import { handler } from "../src/lambda/get-batchid-update-status-to-uploaded/ind
     },
     Records: [
       {
+        receiptHandle: "VALID_RECEIPT_HANDLE_FROM_RECEIVE_MESSAGE",
         s3: {
           bucket: {
             name: "1fab83f3-5260-43d7-afb2-f33cc596896c "
@@ -16,9 +18,12 @@ import { handler } from "../src/lambda/get-batchid-update-status-to-uploaded/ind
           object: {
             key: "1fab83f3-5260-43d7-afb2-f33cc596896c.csv"
           }
-        }
+        },
+        body: JSON.stringify({
+          fileId: "1fab83f3-5260-43d7-afb2-f33cc596896c"
+        }),
       }
-    ]
+    ],
   };
 
   const result = await handler(event);

@@ -46,6 +46,6 @@ export const removeMessageFromSQS = async (event:any, queueUrl:any, sqs:any) => 
             await sqs.send(deleteMessageCommand);
 
       } catch (error) {
-            throw new Error('Failed to remove message from SQS');
+            throw error;
       }
 }

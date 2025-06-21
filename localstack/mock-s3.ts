@@ -5,7 +5,7 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner/dist-types";
 
 export const connectToS3Bucket = async() => {
   const s3 = new S3Client({
-    region: "us-east-1",
+    region: "ap-northeast-1", // Thay đổi theo khu vực của bạn
     endpoint: "http://localhost:4566",
     forcePathStyle: true, // bắt buộc khi dùng LocalStack
     credentials: {
