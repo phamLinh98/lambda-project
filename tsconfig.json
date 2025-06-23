@@ -1,15 +1,16 @@
 {
   "compilerOptions": {
+    "module": "NodeNext",           // 💡 Quan trọng
     "target": "ES2020",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "moduleResolution": "NodeNext", // 💡 Quan trọng với ts-node + ESM
     "esModuleInterop": true,
+    "sourceMap": true,
+    "resolveJsonModule": true,
     "strict": true,
-    "outDir": "dist",
-    "baseUrl": ".",
-    "paths": {
-      "*": ["node_modules/*"]
-    }
+    "skipLibCheck": true,
+    "outDir": "dist"
   },
-  "include": ["src/**/*", "localstack/test.ts", "localstack/mock-secret-key.ts", "localstack/mock-cors.ts", "localstack/mock-dynamo-db.ts"]
+  "ts-node": {
+    "esm": true
+  }
 }

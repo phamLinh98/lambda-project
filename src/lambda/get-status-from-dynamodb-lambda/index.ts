@@ -1,7 +1,14 @@
-import { addCorsHeaders } from "../../utils/cors";
-import { connectToDynamoDb, getItemFromDynamoDB } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateDynamoDb";
-import { getSecretOfKey } from "../get-secret-key-from-manager";
+// import { addCorsHeaders } from "../../utils/cors";
+// import { connectToDynamoDb, getItemFromDynamoDB } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateDynamoDb";
+// import { getSecretOfKey } from "../get-secret-key-from-manager";
 
+// Mock by myself
+import { connectToDynamoDb } from "../../../mock-aws/mock-db";
+import { getSecretOfKey } from "../../../mock-aws/mock-secret";
+import { getItemFromDynamoDB } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateDynamoDb";
+import { addCorsHeaders } from "../../utils/cors";
+
+// localStack
 // import { addCorsHeaders, connectToDynamoDb, getItemFromDynamoDB, getSecretOfKey } from "../../../localstack/mock-path";
 
 export const handler = async (event:any) => {
@@ -26,7 +33,8 @@ export const handler = async (event:any) => {
                         statusCode: 200,
                         body: JSON.stringify(data[0]),
                   });
-            } else {
+            } 
+            else {
                   return {
                         statusCode: 404,
                         body: JSON.stringify({ message: "No records found" }),

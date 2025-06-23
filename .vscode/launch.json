@@ -34,6 +34,15 @@
       },
       "cwd": "${workspaceFolder}",
       "outFiles": []
-    }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "🧪 Debug with tsx",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["tsx", "./mock-aws/mock.ts"],
+      "cwd": "${workspaceFolder}",
+      "skipFiles": ["<node_internals>/**"]
+    }    
   ]
 }

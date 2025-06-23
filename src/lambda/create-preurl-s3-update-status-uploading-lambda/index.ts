@@ -1,17 +1,22 @@
-import { getInstanceDynamoDB } from "../../db/config";
-import { updateTableInDynamoDB } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateDynamoDb";
-import { getSecretOfKey } from "../get-secret-key-from-manager";
-import {
-  connectToS3Bucket,
-  createPreUrlUpdateS3,
-} from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateS3";
-
-// import { getSecretOfKey } from "../../../localstack/mock-secret-key";
-// import { connectToS3Bucket } from "../../../localstack/mock-s3";
-// import { getInstanceDynamoDB, updateTableInDynamoDB } from "../../../localstack/mock-dynamo-db";
+// import { getInstanceDynamoDB } from "../../db/config";
+// import { updateTableInDynamoDB } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateDynamoDb";
+// import { getSecretOfKey } from "../get-secret-key-from-manager";
 // import {
+//   connectToS3Bucket,
 //   createPreUrlUpdateS3,
 // } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateS3";
+
+// LocalStack
+// import { getSecretOfKey } from "../../../localstack/mock-secret-key";
+// import { connectToS3Bucket } from '../../../localstack/mock-s3';
+// import { getInstanceDynamoDB, updateTableInDynamoDB } from "../../../localstack/mock-dynamo-db";
+import { getInstanceDynamoDB } from '../../../mock-aws/mock-db';
+import { connectToS3Bucket } from '../../../mock-aws/mock-s3';
+import { getSecretOfKey } from '../../../mock-aws/mock-secret';
+import { updateTableInDynamoDB } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateDynamoDb";
+import {
+  createPreUrlUpdateS3,
+} from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateS3";
 
 export const handler = async (event: any) => {
   try {
@@ -62,7 +67,7 @@ export const handler = async (event: any) => {
       fileName
     );
 
-    // 4.9 Trả về Pre-signed URL đã tạo
+    // // 4.9 Trả về Pre-signed URL đã tạo
     return data;
   } catch (error) {
      console.error("Call Lambda Fail");
