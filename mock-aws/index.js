@@ -1,37 +1,46 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const crypto = require("crypto");
 
 const app = express();
 app.use(bodyParser.json({ type: "*/*" }));
 
-// Mock database cho DynamoDB, key = tên bảng
+// ✅ Mock database cho DynamoDB (key = tên bảng)
 const db = {
   uploadCsvTableName: [
-    { id: { S: "123" }, name: { S: "Item 1" }, status: {} },
-    { id: { S: "234" }, name: { S: "Item 20" }, status: {} },
     {
-      id: { S: "6af9fe83-72d2-4dea-a157-6d2ba8ca5614" },
-      name: { S: "Auto Created" },
-      status: { S: "Init" },
+      id: { S: "1fab83f3-5260-43d7-afb2-f33cc596896c" },
+      name: { S: "Item 1" },
+      status: { S: "Pending" },
+    },
+    {
+      id: { S: "234" },
+      name: { S: "Item 2" },
+      status: { S: "Pending" },
     },
   ],
 };
 
-// Mock database cho Secrets Manager
+// ✅ Mock database cho Secrets Manager
 const secrets = {
   HitoEnvSecret: JSON.stringify({
     uploadCsvTableName: "uploadCsvTableName",
     bucketCsvName: "linhclass-csv-bucket",
-    anotherSecretKey: "anotherSecretValue",
+    sqsName: "linhclass-lambda-call-to-queue",
+    prefixQueueURL: "https://sqs.ap-southeast-1.amazonaws.com/123456789012/",
   }),
 };
+
+// ✅ Mock SQS Queues
+const queues = [
+  "https://sqs.ap-northeast-1.amazonaws.com/123456789012/linhclass-lambda-call-to-queue",
+  "https://sqs.ap-northeast-1.amazonaws.com/123456789012/dead-letter-queue",
+];
 
 app.post("/", (req, res) => {
   const target = req.headers["x-amz-target"];
 
-  // =============================
-  // ✅ MOCK DYNAMODB
-  // =============================
+  // ✅ DynamoDB handlers
   if (target && target.startsWith("DynamoDB_20120810.")) {
     switch (target) {
       case "DynamoDB_20120810.PutItem": {
@@ -77,45 +86,30 @@ app.post("/", (req, res) => {
           ExpressionAttributeValues,
         } = req.body;
 
-        if (!db[TableName]) {
+        const table = db[TableName];
+        if (!table) {
           return res
             .status(400)
             .json({ message: `Table ${TableName} không tồn tại` });
         }
 
         const keyField = Object.keys(Key)[0];
-        const keyValue = Key[keyField].S || Key[keyField].N;
+        const keyValue = Key[keyField]?.S || Key[keyField]?.N;
 
-        const items = db[TableName];
-
-        const itemIndex = items.findIndex(
-          (item) =>
-            item[keyField]?.S === keyValue || item[keyField]?.N === keyValue
-        );
+        const itemIndex = table.findIndex((item) => {
+          const value = item[keyField]?.S || item[keyField]?.N;
+          return value === keyValue;
+        });
 
         if (itemIndex === -1) {
-          console.error(`❌ Không tìm thấy item với ${keyField} = ${keyValue}`);
-          console.error(
-            "📦 Tất cả keys trong DB:",
-            items.map((i) => i[keyField])
-          );
-          return res
-            .status(404)
-            .json({ message: "Item không tồn tại để update" });
+          return res.status(404).json({ message: "Item không tồn tại để update" });
         }
 
-        const attrNameKey = Object.keys(ExpressionAttributeNames)[0];
-        const attrName = ExpressionAttributeNames[attrNameKey];
+        const attrName = ExpressionAttributeNames["#status"];
+        const newValue = ExpressionAttributeValues[":status"];
 
-        const attrValueKey = Object.keys(ExpressionAttributeValues)[0];
-        const attrValueObj = ExpressionAttributeValues[attrValueKey];
+        table[itemIndex][attrName] = newValue;
 
-        // Cập nhật giá trị
-        items[itemIndex][attrName] = attrValueObj;
-
-        console.log(
-          `✅ Updated ${attrName} of item ${keyValue} in table ${TableName}`
-        );
         return res.json({});
       }
 
@@ -123,15 +117,14 @@ app.post("/", (req, res) => {
         return res.json({ TableNames: Object.keys(db) });
 
       default:
-        return res
-          .status(400)
-          .json({ message: "Unsupported DynamoDB operation", target });
+        return res.status(400).json({
+          message: "Unsupported DynamoDB operation",
+          target,
+        });
     }
   }
 
-  // =============================
-  // ✅ MOCK SECRETS MANAGER
-  // =============================
+  // ✅ Secrets Manager handler
   if (target === "secretsmanager.GetSecretValue") {
     const { SecretId } = req.body;
     if (secrets[SecretId]) {
@@ -140,14 +133,35 @@ app.post("/", (req, res) => {
     return res.status(404).json({ message: "Secret not found" });
   }
 
-  // =============================
-  // ❌ Unsupported target
-  // =============================
+  // ✅ SQS - ListQueues
+  if (target === "AmazonSQS.ListQueues") {
+    return res.json({ QueueUrls: queues });
+  }
+
+  // ✅ SQS - SendMessage
+  if (target === "AmazonSQS.SendMessage") {
+    const { QueueUrl, MessageBody } = req.body;
+
+    if (!QueueUrl || !MessageBody) {
+      return res.status(400).json({ message: "Missing QueueUrl or MessageBody" });
+    }
+
+    console.log(`📨 Mock SQS: Message sent to ${QueueUrl}: ${MessageBody}`);
+
+    // Tính MD5 checksum đúng của MessageBody
+    const md5 = crypto.createHash("md5").update(MessageBody).digest("hex");
+
+    return res.json({
+      MessageId: `1fab83f3-5260-43d7-afb2-f33cc596896c`,
+      MD5OfMessageBody: md5,
+    });
+  }
+
+  // ❌ Unsupported operation
   return res.status(400).json({ message: "Unsupported operation", target });
 });
 
+// 🔥 Server startup
 app.listen(8001, () => {
-  console.log(
-    "🔥 Mock DynamoDB & SecretsManager running on http://localhost:8001"
-  );
+  console.log("🔥 Mock DynamoDB, SecretsManager & SQS running at http://localhost:8001");
 });

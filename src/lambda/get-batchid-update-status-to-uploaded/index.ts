@@ -3,11 +3,21 @@ import { connectToDynamoDb, updateTableInDynamoDB } from "../create-update-detel
 import { connectToSQS, createNewSQSQueue, getAnSpecificItemFromListSQS, sendNewMessageToSQS } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateSQS";
 import { getSecretOfKey } from "../get-secret-key-from-manager";
 
+// localStack
 // import { addCorsHeaders, connectToDynamoDb, getSecretOfKey } from "../../../localstack/mock-path";
 // import { createNewSQSQueue } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateSQS";
 // import { updateTableInDynamoDB } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateDynamoDb";
 // import { connectToSQS, getAnSpecificItemFromListSQS, sendNewMessageToSQS } from '../../../localstack/mock-sqs';
 
+// Mock by nodejs
+// import { connectToDynamoDb } from "../../../mock-aws/mock-db";
+// import { getSecretOfKey } from "../../../mock-aws/mock-secret";
+// import { connectToSQS } from "../../../mock-aws/mock-sqs";
+// import { updateTableInDynamoDB } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateDynamoDb";
+// import { createNewSQSQueue, getAnSpecificItemFromListSQS, sendNewMessageToSQS } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateSQS";
+// import { addCorsHeaders } from "../../utils/cors";
+
+// Mock by nodejs
 export const handler = async (event:any) => {
       try {
             // Get the secret key from AWS Secrets Manager
@@ -37,7 +47,7 @@ export const handler = async (event:any) => {
             //Update the status in DynamoDB tobe 'Uploaded'
             await updateTableInDynamoDB(dynamoDb, uploadCsvTable, fileId, 'Uploaded');
 
-            // Check SQS Queue is Exist or Not
+            // // Check SQS Queue is Exist or Not
             const checkItemSpecificItemInSQSList = await getAnSpecificItemFromListSQS(sqsClient);
             const exitstingQueueUrl = checkItemSpecificItemInSQSList.QueueUrls || [];
             const queueExists = exitstingQueueUrl.some((queueUrl: string) => queueUrl.endsWith(`/${sqsName}`));
