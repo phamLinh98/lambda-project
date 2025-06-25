@@ -6,10 +6,23 @@
 // import { setRoleDemo } from "../demo/role";
 // import { getSecretOfKey } from "../get-secret-key-from-manager";
 
-import { getSecretOfKey, connectToDynamoDb, connectToS3Bucket, connectToSQS, removeMessageFromSQS } from "../../../localstack/mock-path";
-import { createTableInDynamoDB, findAllRecordsHaveStatusInsertSuccess, findTableExists, updateTableInDynamoDB, updateUsersTableWitInfoFromCSV } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateDynamoDb";
+//Mock by LocalStack
+// import { getSecretOfKey, connectToDynamoDb, connectToS3Bucket, connectToSQS, removeMessageFromSQS } from "../../../localstack/mock-path";
+// import { createTableInDynamoDB, findAllRecordsHaveStatusInsertSuccess, findTableExists, updateTableInDynamoDB, updateUsersTableWitInfoFromCSV } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateDynamoDb";
+// import { getAllContentFromS3Uploaded } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateS3";
+// import { setAvatarDemo } from "../demo/avatar";
+// import { setMailDemo } from "../demo/mail";
+// import { setRoleDemo } from "../demo/role";
+
+// Mock by Node.js
+import { connectToDynamoDb } from "../../../mock-aws/mock-db";
+import { connectToS3Bucket } from "../../../mock-aws/mock-s3";
+import { getSecretOfKey } from "../../../mock-aws/mock-secret";
+import { connectToSQS } from "../../../mock-aws/mock-sqs";
+import { updateTableInDynamoDB } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateDynamoDb";
+import { createTableInDynamoDB, findAllRecordsHaveStatusInsertSuccess, findTableExists, updateUsersTableWitInfoFromCSV } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateDynamoDb";
 import { getAllContentFromS3Uploaded } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateS3";
-// import { removeMessageFromSQS } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateSQS";
+import { removeMessageFromSQS } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateSQS";
 import { setAvatarDemo } from "../demo/avatar";
 import { setMailDemo } from "../demo/mail";
 import { setRoleDemo } from "../demo/role";

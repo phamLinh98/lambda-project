@@ -19,6 +19,12 @@ const db = {
       status: { S: "Pending" },
     },
   ],
+  users:[
+    {
+      id: { S: "1" },
+      name: { S: "User 1" },
+    }
+  ]
 };
 
 // ✅ Mock database cho Secrets Manager

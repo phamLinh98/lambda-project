@@ -1,6 +1,7 @@
 //import { handler } from "../src/lambda/get-status-from-dynamodb-lambda";
 //import { handler } from "../src/lambda/create-preurl-s3-update-status-uploading-lambda";
-import { handler } from "../src/lambda/get-batchid-update-status-to-uploaded";
+// import { handler } from "../src/lambda/get-batchid-update-status-to-uploaded";
+import { handler } from "../src/lambda/get-csv-read-detail-update-inprocessing-lambda";
 
 (async () => {
   const event = {
