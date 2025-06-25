@@ -1,12 +1,12 @@
-// import { addCorsHeaders } from "../../utils/cors";
-// import { connectToDynamoDb, getItemFromDynamoDB } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateDynamoDb";
-// import { getSecretOfKey } from "../get-secret-key-from-manager";
+import { addCorsHeaders } from "../../utils/cors";
+import { connectToDynamoDb, getItemFromDynamoDB } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateDynamoDb";
+import { getSecretOfKey } from "../get-secret-key-from-manager";
 
 // Mock by myself
-import { connectToDynamoDb } from "../../../mock-aws/mock-db";
-import { getSecretOfKey } from "../../../mock-aws/mock-secret";
-import { getItemFromDynamoDB } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateDynamoDb";
-import { addCorsHeaders } from "../../utils/cors";
+// import { connectToDynamoDb } from "../../../mock-aws/mock-db";
+// import { getSecretOfKey } from "../../../mock-aws/mock-secret";
+// import { getItemFromDynamoDB } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateDynamoDb";
+// import { addCorsHeaders } from "../../utils/cors";
 
 // localStack
 // import { addCorsHeaders, connectToDynamoDb, getItemFromDynamoDB, getSecretOfKey } from "../../../localstack/mock-path";
