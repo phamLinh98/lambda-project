@@ -15,10 +15,10 @@
 // import { setRoleDemo } from "../demo/role";
 
 // Mock by Node.js
-import { connectToDynamoDb } from "../../../mock-aws/mock-db";
-import { connectToS3Bucket } from "../../../mock-aws/mock-s3";
-import { getSecretOfKey } from "../../../mock-aws/mock-secret";
-import { connectToSQS } from "../../../mock-aws/mock-sqs";
+import { connectToDynamoDb } from "../../../mock-nodejs/mock-db";
+import { connectToS3Bucket } from "../../../mock-nodejs/mock-s3";
+import { getSecretOfKey } from "../../../mock-nodejs/mock-secret";
+import { connectToSQS } from "../../../mock-nodejs/mock-sqs";
 import { updateTableInDynamoDB } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateDynamoDb";
 import { createTableInDynamoDB, findAllRecordsHaveStatusInsertSuccess, findTableExists, updateUsersTableWitInfoFromCSV } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateDynamoDb";
 import { getAllContentFromS3Uploaded } from "../create-update-detele-search-dynamo-sqs-s3/connectAndUpdateS3";
