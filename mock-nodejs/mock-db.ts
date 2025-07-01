@@ -1,6 +1,6 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 
-//OK
+//OK123
 export const connectToDynamoDb = async() => {
   const dynamoDB = new DynamoDBClient({
     region: "ap-northeast-1",
