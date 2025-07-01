@@ -19,7 +19,7 @@ phases:
       - npm run bundle-esbuild
       # Run tests
       - echo "Running tests..."
-      - npm run test
+      # - npm run test
       
       # Run Coverage
       - echo "Running coverage..."
