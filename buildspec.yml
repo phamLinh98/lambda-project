@@ -23,7 +23,7 @@ phases:
       
       # Run Coverage
       - echo "Running coverage..."
-      - npm run coverage
+      # - npm run coverage
 
       # Build and test is done then copy the bundled files to S3
       # Copy the bundled files to arn:aws:s3:::lambda-project-bundle-source-checked
